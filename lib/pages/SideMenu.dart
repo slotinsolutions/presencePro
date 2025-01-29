@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:testapp/utils/Firebase_auth_services.dart';
 import 'package:testapp/utils/colors.dart';
+import 'selectType.dart';
 class SideMenu extends StatefulWidget {
   const SideMenu({super.key});
 
@@ -8,6 +11,7 @@ class SideMenu extends StatefulWidget {
 }
 
 class _SideMenuState extends State<SideMenu> {
+  final _auth = FirebaseAuthServices();
   @override
   Widget build(BuildContext context) {
     return Drawer(
@@ -37,7 +41,12 @@ class _SideMenuState extends State<SideMenu> {
               padding: EdgeInsets.only(left: 5,right: 5,top: 5),
               margin: EdgeInsets.only(right: 20),
               child: TextButton(
-                  onPressed: () {
+                  onPressed: () async {
+                    await _auth.signOut();
+                    Fluttertoast.showToast(msg: "Signed out Successfully",
+                        fontSize: 18);
+                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => Selecttype()));
+
 
                   }, child: Row(
                 children: [
@@ -55,4 +64,7 @@ class _SideMenuState extends State<SideMenu> {
 
     );
   }
+}
+
+class _auth {
 }

@@ -1,9 +1,12 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:testapp/pages/StudentList.dart';
 import 'package:testapp/utils/colors.dart';
 import 'package:testapp/utils/components.dart';
 import 'package:testapp/utils/constants.dart';
+import 'package:testapp/utils/firestore.dart';
 import 'SideMenu.dart';
 
 class ClassListScreen extends StatefulWidget {
@@ -18,6 +21,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
   TextEditingController classname = TextEditingController();
   TextEditingController classTeacherName = TextEditingController();
   GlobalKey<ScaffoldState> _drawerkey = GlobalKey();
+  final FirebaseAuth _auth = FirebaseAuth.instance;
 
 
   void showCustomDialog(BuildContext context){
@@ -53,6 +57,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
                               backgroundColor: AppColors.primary
                           ),
                           onPressed: (){
+                            Firebase_Firestore().createClass(_auth.currentUser!.uid,classname.text, classTeacherName.text);
                             Navigator.pop(context);
                           },
                           child: Text("Create Class",style: TextStyle(fontSize: 14,color: Colors.white),)),
@@ -128,7 +133,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text("Welcome,",style: TextStyle(fontSize: 25,color: AppColors.black),),
-                            Text("Rohit Choudhary",softWrap:true,
+                            Text(_auth.currentUser!.displayName!,softWrap:true,
                                 overflow: TextOverflow.visible,
 
                                 style: TextStyle(fontSize: 30,fontWeight:FontWeight.w500,color: AppColors.bgColor2)),
@@ -147,25 +152,49 @@ class _ClassListScreenState extends State<ClassListScreen> {
 
             Expanded(
               child: Padding(padding: EdgeInsets.all(8),
-              child:ListView.builder(
-                itemCount: Constants().classes.length,
+              child:StreamBuilder(
+    stream: FirebaseFirestore.instance
+        .collection("users")
+        .doc(_auth.currentUser!.uid)
+        .collection("classes")
+        .orderBy("createdAt", descending: true)
+        .snapshots(),
+    builder: (context, snapshot) {
+      if (snapshot.connectionState == ConnectionState.waiting) {
+        return Center(child: CircularProgressIndicator());
+      }
 
-                  itemBuilder: (context,index){
+      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+        return Center(child: Text("No classes available"));
+      }
 
-                    return Card(
-                      color: Colors.white,
-                      elevation: 5,
-                      child: ListTile(
-                        onTap: (){
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=>StudentList(className:Constants().classes[index],userType: widget.userType,)));
-                        },
+      var classDocs = snapshot.data!.docs;
+      return ListView.builder(
+          itemCount: classDocs.length,
+          itemBuilder: (context, index) {
+            var classData = classDocs[index].data() as Map<String, dynamic>;
+            return Card(
+              color: Colors.white,
+              elevation: 5,
+              child: ListTile(
+                onTap: () {
+                  Navigator.push(context, MaterialPageRoute(
+                      builder: (context) =>
+                          StudentList(className: Constants().classes[index],
+                            userType: widget.userType,)));
+                },
 
-                        title: Text(Constants().classes[index],style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18,color: AppColors.primary),),
-                        subtitle: Text("ClassTeacher - ABC"),
-                        trailing: Text('${Constants().present[index]}/50'),
-                      ),
-                    );
-                  }
+                title: Text(classData["className"], style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 18,
+                    color: AppColors.primary),),
+                subtitle: Text(classData["classTeacher"]),
+                trailing: Text('${Constants().present[index]}/50'),
+              ),
+            );
+          }
+      );
+    }
               )
 
                 ),

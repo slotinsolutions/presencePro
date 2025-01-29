@@ -1,8 +1,11 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:testapp/main.dart';
 import 'package:testapp/pages/AdminHomePage.dart';
 import 'package:testapp/pages/ClassesList.dart';
 import 'package:testapp/pages/LoginScreen.dart';
+import 'package:testapp/utils/Firebase_auth_services.dart';
 import 'package:testapp/utils/colors.dart';
 import 'package:testapp/utils/components.dart';
 import 'package:testapp/pages/ViewAttendance.dart';
@@ -14,10 +17,23 @@ class signUpScreen extends StatefulWidget {
 }
 
 class _signUpScreenState extends State<signUpScreen> {
-  TextEditingController name= TextEditingController();
+  final FirebaseAuthServices _auth = FirebaseAuthServices();
   TextEditingController email = TextEditingController();
   TextEditingController pass = TextEditingController();
-  @override
+  TextEditingController name = TextEditingController();
+  void _signup()async{
+    String username = name.text;
+    String usermail = email.text;
+    String userpass = pass.text;
+    User? user = await _auth.signUpWithEmailAndPassword(username,usermail, userpass);
+    if(user!= null){
+      Fluttertoast.showToast(msg: "Registered Successfully");
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>Adminhomepage(userType: "ADMIN",)));
+    }
+    else{
+      print("some error occured");
+    }
+  } @override
   Widget build(BuildContext context) {
     double screenwidth = MediaQuery.of(context).size.width;
     return Scaffold(
@@ -65,8 +81,7 @@ class _signUpScreenState extends State<signUpScreen> {
                     child: ElevatedButton(
                         style: ElevatedButton.styleFrom(backgroundColor: AppColors.bgColor2),
                         onPressed: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=>Adminhomepage(userType: "ADMIN",)));
-
+                         _signup();
                         },
                         child: Text("SignUp",style: TextStyle(color: AppColors.white),)),
                   ),

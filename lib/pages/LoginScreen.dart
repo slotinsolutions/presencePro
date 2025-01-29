@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:testapp/main.dart';
 import 'package:testapp/pages/AdminHomePage.dart';
 import 'package:testapp/pages/ClassesList.dart';
 import 'package:testapp/pages/SingUpScreen.dart';
 import 'package:testapp/pages/ViewAttendance.dart';
+import 'package:testapp/utils/Firebase_auth_services.dart';
 import 'package:testapp/utils/colors.dart';
 import 'package:testapp/pages/ForgetPasswordPage.dart';
 import 'package:testapp/utils/components.dart';
@@ -16,8 +18,22 @@ class loginScreen extends StatefulWidget {
 }
 
 class _loginScreenState extends State<loginScreen> {
+  final _auth = FirebaseAuthServices();
   TextEditingController email = TextEditingController();
   TextEditingController pass = TextEditingController();
+
+  _login() async{
+    final user = await _auth.signInWithEmailAndPassword(email.text, pass.text);
+    if(user!=null){
+      Fluttertoast.showToast(msg: "Logged in Successfully",
+          fontSize: 18);
+      Navigator.push(context, MaterialPageRoute(builder: (context)=>widget.userType=="STUDENT"?ViewAttendanceScreen():Adminhomepage(userType: widget.userType)));
+
+    }
+    else{
+      print("some error occured");
+    }
+  }
 
 
 
@@ -65,8 +81,7 @@ class _loginScreenState extends State<loginScreen> {
                     child: ElevatedButton(
                         style: ElevatedButton.styleFrom(backgroundColor: AppColors.bgColor2),
                         onPressed: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=>widget.userType=="STUDENT"?ViewAttendanceScreen():Adminhomepage(userType: widget.userType)));
-                        },
+                          _login(); },
                         child: Text("Login",style: TextStyle(color: AppColors.white),)),
                   ),
                   SizedBox(height: 10,),
