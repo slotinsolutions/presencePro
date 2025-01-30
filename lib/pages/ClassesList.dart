@@ -133,7 +133,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text("Welcome,",style: TextStyle(fontSize: 25,color: AppColors.black),),
-                            Text(_auth.currentUser!.displayName!,softWrap:true,
+                            Text(_auth.currentUser!.displayName??"Default User",softWrap:true,
                                 overflow: TextOverflow.visible,
 
                                 style: TextStyle(fontSize: 30,fontWeight:FontWeight.w500,color: AppColors.bgColor2)),

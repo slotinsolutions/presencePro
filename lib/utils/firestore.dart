@@ -5,6 +5,46 @@ import 'package:uuid/uuid.dart';
 
 class Firebase_Firestore{
 
+  Future<String> addTeacher(String adminId, String email, String password, String name, String subject,String adminPass) async {
+    try {
+      FirebaseAuth auth = FirebaseAuth.instance;
+      User? currentAdmin = auth.currentUser; // Save the current logged-in admin
+
+
+      UserCredential userCredential = await auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      String teacherId = userCredential.user!.uid;
+
+
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(adminId)
+          .collection('teachers')
+          .doc(teacherId)
+          .set({
+        'email': email,
+        'name': name,
+        'teacherId': teacherId,
+        'adminId': adminId,
+        'subject': subject,
+      });
+
+      // Log the admin back in
+      if (currentAdmin != null) {
+        await auth.signInWithEmailAndPassword(
+          email: currentAdmin.email!,
+          password: adminPass, // ⚠ Store securely or prompt for re-login
+        );
+      }
+
+      return "Teacher added successfully";
+    } catch (e) {
+      return "Error: $e";
+    }
+  }
 
   Future<void> createClass(String adminId, String className, String classTeacher) async {
     try {
