@@ -22,7 +22,21 @@ class _ClassListScreenState extends State<ClassListScreen> {
   TextEditingController classTeacherName = TextEditingController();
   GlobalKey<ScaffoldState> _drawerkey = GlobalKey();
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  String? adminId;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    fetchAdminId();
+  }
 
+
+  Future<void> fetchAdminId() async{
+    String? fetchedAdminId = await Firebase_Firestore().getAdminIdForCurrentTeacher();
+    setState(() {
+      adminId = fetchedAdminId;
+    });
+  }
 
   void showCustomDialog(BuildContext context){
     showDialog(
@@ -153,9 +167,10 @@ class _ClassListScreenState extends State<ClassListScreen> {
             Expanded(
               child: Padding(padding: EdgeInsets.all(8),
               child:StreamBuilder(
+
     stream: FirebaseFirestore.instance
         .collection("users")
-        .doc(_auth.currentUser!.uid)
+        .doc(widget.userType=="ADMIN"?_auth.currentUser!.uid:adminId)
         .collection("classes")
         .orderBy("createdAt", descending: true)
         .snapshots(),
@@ -165,7 +180,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
       }
 
       if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-        return Center(child: Text("No classes available"));
+        return Center(child: Text("no Classes found"));
       }
 
       var classDocs = snapshot.data!.docs;

@@ -8,6 +8,8 @@ import 'package:testapp/utils/firestore.dart';
 class FirebaseAuthServices {
   FirebaseAuth _auth = FirebaseAuth.instance;
 
+
+
   Future<User?> signUpWithEmailAndPassword(String name,String email,
       String password) async {
     try {
