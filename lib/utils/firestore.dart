@@ -1,9 +1,99 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:uuid/uuid.dart';
 
 class Firebase_Firestore{
+
+
+  Future<void> registerStudent({
+    required BuildContext context,
+    required String adminPassword,
+    required String className,
+    required String studentName,
+    required String studentEmail,
+    required String studentPassword,
+    required String rollNumber,
+    required String rfidTagId,
+    required String beaconId,
+  }) async {
+    try {
+      FirebaseAuth auth = FirebaseAuth.instance;
+      FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+      // Step 1: Authenticate Admin First
+      User? adminUser = auth.currentUser;
+      if (adminUser == null) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("Admin not logged in!")));
+        return;
+      }
+
+      // Re-authenticate Admin
+      AuthCredential credential = EmailAuthProvider.credential(
+        email: adminUser.email!,
+        password: adminPassword,
+      );
+      await adminUser.reauthenticateWithCredential(credential);
+
+      String adminId = adminUser.uid;
+
+      // Step 2: Create Student in Firebase Authentication
+      UserCredential studentCredential =
+      await auth.createUserWithEmailAndPassword(
+        email: studentEmail,
+        password: studentPassword,
+      );
+
+      String studentId = studentCredential.user!.uid;
+
+      // Step 3: Get Class ID based on class name
+      QuerySnapshot classSnapshot = await firestore
+          .collection('users')
+          .doc(adminId)
+          .collection('classes')
+          .where('className', isEqualTo: className)
+          .limit(1)
+          .get();
+
+      if (classSnapshot.docs.isEmpty) {
+        ScaffoldMessenger.of(context)
+            .showSnackBar(SnackBar(content: Text("Class not found!")));
+        return;
+      }
+
+      String classId = classSnapshot.docs.first.id;
+
+      // Step 4: Store Student Data in Firestore
+      await firestore
+          .collection('users')
+          .doc(adminId)
+          .collection('classes')
+          .doc(classId)
+          .collection('students')
+          .doc(studentId)
+          .set({
+        'studentName': studentName,
+        'studentEmail': studentEmail,
+        'rollNumber': rollNumber,
+        'rfidTagId': rfidTagId,
+        'beaconId': beaconId,
+        'timestamp': FieldValue.serverTimestamp(),
+      });
+
+      // Step 5: Re-login Admin
+      await auth.signOut();
+      await auth.signInWithEmailAndPassword(
+          email: adminUser.email!, password: adminPassword);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Student Registered Successfully!')));
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: ${e.toString()}')));
+    }
+  }
 
   Future<String?> getAdminIdForCurrentTeacher() async {
     String teacherId = FirebaseAuth.instance.currentUser!.uid; // Get current teacher's UID

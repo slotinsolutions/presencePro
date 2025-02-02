@@ -1,8 +1,11 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:testapp/pages/Teachers.dart';
 import 'package:testapp/utils/colors.dart';
 import 'package:testapp/utils/components.dart';
 import 'package:testapp/utils/constants.dart';
+import 'package:testapp/utils/firestore.dart';
 
 class AddstudentScreen extends StatefulWidget {
   const AddstudentScreen({super.key});
@@ -19,6 +22,40 @@ class _AddstudentScreenState extends State<AddstudentScreen> {
   TextEditingController rollno= TextEditingController();
   TextEditingController rfidID= TextEditingController();
   TextEditingController beaconID= TextEditingController();
+   TextEditingController adminPassword= TextEditingController();
+
+   String? selectedClass;
+   List<String> classList = [];
+
+   @override
+   void initState() {
+   super.initState();
+   fetchClasses();
+   }
+
+
+   Future<void> fetchClasses() async {
+   String adminId = FirebaseAuth.instance.currentUser!.uid; // Get Admin ID
+
+   try {
+   QuerySnapshot snapshot = await FirebaseFirestore.instance
+       .collection('users')
+       .doc(adminId)
+       .collection('classes')
+       .get();
+
+   List<String> fetchedClasses = snapshot.docs.map((doc) => doc["className"] as String).toList();
+
+   setState(() {
+   classList = fetchedClasses;
+   });
+   } catch (e) {
+   print("Error fetching classes: $e");
+   }
+   }
+
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -60,17 +97,21 @@ class _AddstudentScreenState extends State<AddstudentScreen> {
                           borderRadius: BorderRadius.circular(30)
                       ),
                     ),
-                    items: Constants().classes.map((String Type){
+                    items: classList.map((String className){
                       return DropdownMenuItem(
 
-                          value: Type,
-                          child: Text(Type));
+
+                          value: className,
+
+                          child: Text(className));
                     }).toList(),
                     onChanged: (String? newValue){
                       setState(() {
                         selectedCLass=newValue;
                       });
                     },
+                    dropdownColor: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
 
 
                   ),
@@ -97,6 +138,9 @@ class _AddstudentScreenState extends State<AddstudentScreen> {
                 Components().InputBox2(rfidID, Icon(Icons.signal_cellular_alt), "RFID Tag ID"),
                 SizedBox(height: 15,),
                 Components().InputBox2(beaconID, Icon(Icons.bluetooth_audio), "Beacon ID"),
+                SizedBox(height: 15,),
+                Components().InputBox2(adminPassword, Icon(Icons.lock), "Enter Admin Password"),
+
                 SizedBox(height: 30,),
                 Center(
                   child: SizedBox(
@@ -105,7 +149,19 @@ class _AddstudentScreenState extends State<AddstudentScreen> {
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary
                       ),
-                        onPressed: (){
+                        onPressed: ()async{
+                        await Firebase_Firestore().registerStudent(context: context, adminPassword: adminPassword.text, className: selectedCLass!, studentName: name.text, studentEmail: email.text, studentPassword: password.text, rollNumber: rollno.text, rfidTagId: rfidID.text, beaconId: beaconID.text);
+                        setState(() {
+                          name.clear();
+                          email.clear();
+                          password.clear();
+                          rollno.clear();
+                          rfidID.clear();
+                          beaconID.clear();
+                          adminPassword.clear();
+                          selectedCLass=null;
+
+                        });
 
                         },
                         child: Text("Register Student",style: TextStyle(fontSize: 14,color: Colors.white),)),
