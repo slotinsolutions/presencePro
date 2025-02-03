@@ -166,20 +166,21 @@ class _ClassListScreenState extends State<ClassListScreen> {
 
             Expanded(
               child: Padding(padding: EdgeInsets.all(8),
-              child:StreamBuilder(
+              child:StreamBuilder (
 
-    stream: FirebaseFirestore.instance
+    stream:  FirebaseFirestore.instance
         .collection("users")
         .doc(widget.userType=="ADMIN"?_auth.currentUser!.uid:adminId)
         .collection("classes")
         .orderBy("createdAt", descending: true)
         .snapshots(),
     builder: (context, snapshot) {
-      if (snapshot.connectionState == ConnectionState.waiting) {
+      if (!snapshot.hasData ||snapshot.connectionState == ConnectionState.waiting) {
         return Center(child: CircularProgressIndicator());
       }
 
-      if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+
+      if (snapshot.data!.docs.isEmpty) {
         return Center(child: Text("no Classes found"));
       }
 
@@ -196,7 +197,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
                   Navigator.push(context, MaterialPageRoute(
                       builder: (context) =>
                           StudentList(className: classData['className'],
-                            userType: widget.userType,clasID: classData["classId"],adminId: _auth.currentUser!.uid,)));
+                            userType: widget.userType,clasID: classData["classId"],adminId: widget.userType=="ADMIN"?_auth.currentUser!.uid:adminId!,)));
                 },
 
                 title: Text(classData["className"], style: TextStyle(
