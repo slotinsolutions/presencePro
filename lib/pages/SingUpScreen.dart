@@ -28,7 +28,7 @@ class _signUpScreenState extends State<signUpScreen> {
     User? user = await _auth.signUpWithEmailAndPassword(username,usermail, userpass);
     if(user!= null){
       Fluttertoast.showToast(msg: "Registered Successfully");
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>Adminhomepage(userType: "ADMIN",)));
+      Navigator.pushReplacement(      context, MaterialPageRoute(builder: (context)=>Adminhomepage(userType: "ADMIN",)));
     }
     else{
       print("some error occured");

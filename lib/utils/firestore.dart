@@ -80,6 +80,7 @@ class Firebase_Firestore{
         'rfidTagId': rfidTagId,
         'beaconId': beaconId,
         'timestamp': FieldValue.serverTimestamp(),
+        'studentId':studentId
       });
 
       // Step 5: Re-login Admin

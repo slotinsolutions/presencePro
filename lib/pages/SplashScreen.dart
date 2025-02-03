@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:testapp/pages/AdminHomePage.dart';
+import 'package:testapp/pages/ViewAttendance.dart';
 import 'package:testapp/pages/selectType.dart';
 import 'package:testapp/utils/Firebase_auth_services.dart';
 import 'package:testapp/utils/colors.dart';
@@ -55,7 +56,7 @@ class _SplashscreenState extends State<Splashscreen> {
 
     if(_user != null){
       String user = await getUserRole(_auth.currentUser!.uid);
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>Adminhomepage(userType: user)));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>user=="STUDENT"?ViewAttendanceScreen(studentid: _auth.currentUser!.uid):Adminhomepage(userType: user)));
        }
     else {
       Navigator.of(context).pushReplacement(MaterialPageRoute(

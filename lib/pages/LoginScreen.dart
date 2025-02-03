@@ -27,7 +27,7 @@ class _loginScreenState extends State<loginScreen> {
     if(user!=null){
       Fluttertoast.showToast(msg: "Logged in Successfully",
           fontSize: 18);
-      Navigator.push(context, MaterialPageRoute(builder: (context)=>widget.userType=="STUDENT"?ViewAttendanceScreen():Adminhomepage(userType: widget.userType)));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>widget.userType=="STUDENT"?ViewAttendanceScreen(studentid: user.uid,):Adminhomepage(userType: widget.userType)));
 
     }
     else{

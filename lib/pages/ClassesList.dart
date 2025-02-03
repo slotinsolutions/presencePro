@@ -187,7 +187,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
       return ListView.builder(
           itemCount: classDocs.length,
           itemBuilder: (context, index) {
-            var classData = classDocs[index].data() as Map<String, dynamic>;
+            var classData = classDocs[index].data();
             return Card(
               color: Colors.white,
               elevation: 5,
@@ -195,8 +195,8 @@ class _ClassListScreenState extends State<ClassListScreen> {
                 onTap: () {
                   Navigator.push(context, MaterialPageRoute(
                       builder: (context) =>
-                          StudentList(className: Constants().classes[index],
-                            userType: widget.userType,)));
+                          StudentList(className: classData['className'],
+                            userType: widget.userType,clasID: classData["classId"],adminId: _auth.currentUser!.uid,)));
                 },
 
                 title: Text(classData["className"], style: TextStyle(

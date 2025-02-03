@@ -60,7 +60,7 @@ class _changePassScreenState extends State<changePassScreen> {
                       child: ElevatedButton(
                           style: ElevatedButton.styleFrom(backgroundColor: AppColors.bgColor2),
                           onPressed: (){
-                            Navigator.push(context, MaterialPageRoute(builder: (context)=>widget.userType=="STUDENT"?ViewAttendanceScreen():Adminhomepage(userType:widget.userType,)));
+                            Navigator.push(context, MaterialPageRoute(builder: (context)=>widget.userType=="STUDENT"?ViewAttendanceScreen(studentid: "abc"):Adminhomepage(userType:widget.userType,)));
 
                           },
                           child: Text("Change Password",style: TextStyle(color: AppColors.white),)),
