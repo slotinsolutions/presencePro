@@ -147,7 +147,7 @@ class _SelecttypeState extends State<Selecttype> {
               child: SizedBox(
                 width: w*0.7,
                 child: ElevatedButton(onPressed: (){
-                  Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>loginScreen(userType: selectedOption)));
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=>loginScreen(userType: selectedOption)));
                 },
                     child: Text("Proceed",style: TextStyle(fontSize: 16,color: AppColors.primary),)),
               ),

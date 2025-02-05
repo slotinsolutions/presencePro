@@ -22,18 +22,6 @@ class _loginScreenState extends State<loginScreen> {
   TextEditingController email = TextEditingController();
   TextEditingController pass = TextEditingController();
 
-  _login() async{
-    final user = await _auth.signInWithEmailAndPassword(email.text, pass.text);
-    if(user!=null){
-      Fluttertoast.showToast(msg: "Logged in Successfully",
-          fontSize: 18);
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>widget.userType=="STUDENT"?ViewAttendanceScreen(studentid: user.uid,):Adminhomepage(userType: widget.userType)));
-
-    }
-    else{
-      print("some error occured");
-    }
-  }
 
 
 
@@ -81,7 +69,7 @@ class _loginScreenState extends State<loginScreen> {
                     child: ElevatedButton(
                         style: ElevatedButton.styleFrom(backgroundColor: AppColors.bgColor2),
                         onPressed: (){
-                          _login(); },
+                          FirebaseAuthServices().loginUser(context, email.text, pass.text, widget.userType); },
                         child: Text("Login",style: TextStyle(color: AppColors.white),)),
                   ),
                   SizedBox(height: 10,),

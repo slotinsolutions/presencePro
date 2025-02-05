@@ -1,12 +1,53 @@
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:testapp/pages/AdminHomePage.dart';
+import 'package:testapp/pages/ViewAttendance.dart';
 import 'package:testapp/utils/firestore.dart';
 
 
 class FirebaseAuthServices {
   FirebaseAuth _auth = FirebaseAuth.instance;
+
+
+  Future<void> loginUser(BuildContext context, String email, String password, String selectedRole) async {
+    try {
+
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+
+      String uid = userCredential.user!.uid;
+
+      String? actualRole = await getUserRole(uid);
+
+      if (actualRole == null) {
+        await FirebaseAuth.instance.signOut();
+        Fluttertoast.showToast(msg: 'User data not found!',
+            fontSize: 18);
+         return;
+      }
+
+      if (actualRole != selectedRole) {
+        await FirebaseAuth.instance.signOut();
+        Fluttertoast.showToast(msg: "You are not a $selectedRole! Please select the correct role.",
+            fontSize: 18);
+
+        return;
+      }
+
+      Fluttertoast.showToast(msg: "Logged in Successfully",
+          fontSize: 18);
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>actualRole=="STUDENT"?ViewAttendanceScreen(studentid: uid,):Adminhomepage(userType:actualRole)));
+
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Login Failed: $e")));
+    }
+  }
+
 
 
 
@@ -40,6 +81,35 @@ class FirebaseAuthServices {
 
     return null;
   }
+
+
+  Future<String> getUserRole(String uid) async {
+     final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+    DocumentSnapshot adminDoc = await firestore.collection("users").doc(uid).get();
+    if (adminDoc.exists) {
+      return "ADMIN";
+    }
+
+
+    QuerySnapshot admins = await firestore.collection("users").get();
+    for (var admin in admins.docs) {
+      DocumentSnapshot teacherDoc = await firestore
+          .collection("users")
+          .doc(admin.id)
+          .collection("teachers")
+          .doc(uid)
+          .get();
+      if (teacherDoc.exists) {
+        return "STAFF";
+      }
+    }
+
+
+    return "STUDENT";
+  }
+
+
   Future<User?> signInWithEmailAndPassword(String email, String password) async {
     try {
       UserCredential credential = await _auth.signInWithEmailAndPassword(
