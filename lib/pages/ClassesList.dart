@@ -23,12 +23,37 @@ class _ClassListScreenState extends State<ClassListScreen> {
   GlobalKey<ScaffoldState> _drawerkey = GlobalKey();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   String? adminId;
+  String? selectedTeacher;
+  List<String> teachersList = [];
+
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
+    fetchClasses();
     fetchAdminId();
   }
+
+
+  Future<void> fetchClasses() async {
+    String adminId = FirebaseAuth.instance.currentUser!.uid; // Get Admin ID
+
+    try {
+      QuerySnapshot snapshot = await FirebaseFirestore.instance
+          .collection('users')
+          .doc(adminId)
+          .collection('teachers')
+          .get();
+
+      List<String> fetchedTeachers = snapshot.docs.map((doc) => doc["name"] as String).toList();
+
+      setState(() {
+        teachersList = fetchedTeachers;
+      });
+    } catch (e) {
+      print("Error fetching teachers $e");
+    }
+  }
+
 
 
   Future<void> fetchAdminId() async{
@@ -60,8 +85,49 @@ class _ClassListScreenState extends State<ClassListScreen> {
 
                   Components().InputBox2(classname, Icon(Icons.menu_book), "Class Name"),
                   SizedBox(height: 15,),
-                  Components().InputBox2(classTeacherName, Icon(Icons.person), "Class Teacher Name"),
+                  Container(
+                    decoration: BoxDecoration(
+                        color: Colors.transparent,
+                        border: Border.all(
+                            color: AppColors.bgColor2
+                        ),
+                        borderRadius: BorderRadius.circular(20)
 
+                    ),
+                    child: DropdownButtonFormField(
+                      value: selectedTeacher,
+                      decoration: InputDecoration(
+
+                        prefixIcon: Icon(Icons.menu_book_rounded,color: AppColors.primary,),
+                        suffixIconColor: AppColors.primary,
+                        filled: true,
+                        fillColor: AppColors.white,
+                        hintText: "Select Class Teacher",
+                        hintStyle: TextStyle(color: Colors.grey),
+                        border: OutlineInputBorder(
+                            borderSide: BorderSide.none,
+                            borderRadius: BorderRadius.circular(30)
+                        ),
+                      ),
+                      items: teachersList.map((String teacherName){
+                        return DropdownMenuItem(
+
+
+                            value: teacherName,
+
+                            child: Text(teacherName));
+                      }).toList(),
+                      onChanged: (String? newValue){
+                        setState(() {
+                          selectedTeacher=newValue;
+                        });
+                      },
+                      dropdownColor: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+
+
+                    ),
+                  ),
                   SizedBox(height: 30,),
                   Center(
                     child: SizedBox(
@@ -71,7 +137,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
                               backgroundColor: AppColors.primary
                           ),
                           onPressed: (){
-                            Firebase_Firestore().createClass(_auth.currentUser!.uid,classname.text, classTeacherName.text);
+                            Firebase_Firestore().createClass(_auth.currentUser!.uid,classname.text, selectedTeacher!);
                             Navigator.pop(context);
                           },
                           child: Text("Create Class",style: TextStyle(fontSize: 14,color: Colors.white),)),
