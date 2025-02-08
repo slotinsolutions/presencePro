@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:testapp/pages/profile.dart';
 import 'package:testapp/utils/Firebase_auth_services.dart';
 import 'package:testapp/utils/colors.dart';
 import 'selectType.dart';
@@ -42,6 +43,25 @@ class _SideMenuState extends State<SideMenu> {
               margin: EdgeInsets.only(right: 20),
               child: TextButton(
                   onPressed: () async {
+
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => Profile()));
+
+
+                  }, child: Row(
+                children: [
+                  Icon(Icons.person,color: Colors.grey[800],size: 24),
+                  SizedBox(width: 10,),
+                  Text("Profile",style:TextStyle(color: Colors.grey[800],fontSize: 18))
+                ],
+              )
+              ),
+            ),
+
+            Container(
+              padding: EdgeInsets.only(left: 5,right: 5),
+              margin: EdgeInsets.only(right: 20),
+              child: TextButton(
+                  onPressed: () async {
                     await _auth.signOut();
                     Fluttertoast.showToast(msg: "Signed out Successfully",
                         fontSize: 18);
@@ -57,6 +77,8 @@ class _SideMenuState extends State<SideMenu> {
               )
               ),
             ),
+
+
 
           ],
         ),
