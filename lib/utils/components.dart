@@ -1,20 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:testapp/utils/colors.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:percent_indicator/percent_indicator.dart';
+import 'package:testapp/utils/theme_provider.dart';
 class Components{
   Widget dialog(String title,String content,BuildContext context){
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return AlertDialog(
 
       actionsAlignment: MainAxisAlignment.center,
-      backgroundColor: Colors.white,
-      title: Text(title,textAlign: TextAlign.center,),
-      content: Text(content,textAlign: TextAlign.center,),
+      backgroundColor: themeProvider.themeColor,
+      title: Text(title,textAlign: TextAlign.center,style: TextStyle(color: themeProvider.textColor),),
+      content: Text(content,textAlign: TextAlign.center,style: TextStyle(color: themeProvider.textColor),),
       actions: [
         TextButton(onPressed: (){
           Navigator.pop(context);
         },
-            child: Text("Cancel",style: TextStyle(color: Colors.grey),)),
+            child: Text("Cancel",style: TextStyle(color:themeProvider.textColor),)),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.primary
@@ -26,9 +29,9 @@ class Components{
       ],
 
     ); }
-  Widget InputBox2(TextEditingController controller,Icon icon,String hint){
+  Widget InputBox2(TextEditingController controller,Icon icon,String hint,Color themecolor,Color textColor){
     return TextField(
-      style: const TextStyle(fontSize: 16),
+      style: TextStyle(fontSize: 16,color: textColor),
       controller:controller ,
 
       decoration: InputDecoration(
@@ -40,8 +43,8 @@ class Components{
           ),
           hintText: hint,
           labelText: hint,
-          labelStyle: const TextStyle(fontSize: 16,color: Colors.black),
-          hintStyle: const TextStyle(fontSize: 16),
+          labelStyle:  TextStyle(fontSize: 16,color: textColor),
+          hintStyle: TextStyle(fontSize: 16,color: textColor),
           fillColor: Colors.cyan.shade50,
 
           border: OutlineInputBorder(
@@ -92,19 +95,20 @@ class Components{
     );
   }
 
-  Widget InputBox(TextEditingController controller,String hint,Icon icon){
+  Widget InputBox(TextEditingController controller,String hint,Icon icon,Color themecolor,Color textColor){
     return TextField(
-      style:const TextStyle(fontSize: 16),
+      style: TextStyle(fontSize: 16,color: textColor),
       controller:controller,
 
       decoration: InputDecoration(
           filled: true,
           prefixIcon:icon,
 
+
           hintText: hint,
 
-          hintStyle:const TextStyle(fontSize: 16),
-          fillColor: AppColors.white,
+          hintStyle:TextStyle(fontSize: 16,color: textColor),
+          fillColor: themecolor,
 
           border: OutlineInputBorder(
             borderSide: BorderSide.none,

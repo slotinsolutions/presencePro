@@ -1,9 +1,11 @@
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:testapp/pages/AddStudent.dart';
 import 'package:testapp/pages/ClassesList.dart';
 import 'package:testapp/pages/Teachers.dart';
 import 'package:testapp/utils/colors.dart';
+import 'package:testapp/utils/theme_provider.dart';
 class Adminhomepage extends StatefulWidget {
   final String userType;
   Adminhomepage({super.key,required this.userType});
@@ -25,6 +27,7 @@ class _AdminhomepageState extends State<Adminhomepage> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     List<Widget> _widgetList = [
       ClassListScreen(userType: widget.userType,),
       const AddstudentScreen(),
@@ -34,7 +37,7 @@ class _AdminhomepageState extends State<Adminhomepage> {
       body: widget.userType=="ADMIN"?_widgetList[myIndex]:_widgetList[0],
 
      bottomNavigationBar: widget.userType=="ADMIN"? CurvedNavigationBar(
-        backgroundColor: Colors.white,
+        backgroundColor: themeProvider.themeColor,
         color: AppColors.primary,
         height: 55,
         items: _navigationitems,

@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'package:table_calendar/table_calendar.dart';
 import 'package:testapp/utils/colors.dart';
+import 'package:testapp/utils/theme_provider.dart';
 
 class WeeklyAttendance extends StatefulWidget {
   @override
@@ -37,7 +39,7 @@ class _WeeklyAttendanceState extends State<WeeklyAttendance> {
       case 'Absent':
         return Colors.red.shade100;
       case 'Holiday':
-        return Colors.blue.shade100;
+        return Colors.blueGrey[300]!;
       case 'Future':
         return Colors.transparent;
       default:
@@ -49,8 +51,9 @@ class _WeeklyAttendanceState extends State<WeeklyAttendance> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Container(
-      color: Colors.white,
+      color: themeProvider.themeColor,
         child: Column(
           children: [
             TableCalendar(
@@ -80,7 +83,7 @@ class _WeeklyAttendanceState extends State<WeeklyAttendance> {
                     child: Text(
                       '${day.day}',
                       style: TextStyle(
-                        color: Colors.black,
+                        color: themeProvider.textColor,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -100,7 +103,7 @@ class _WeeklyAttendanceState extends State<WeeklyAttendance> {
                     child: Text(
                       '${day.day}',
                       style: TextStyle(
-                        color: Colors.black,
+                        color: themeProvider.textColor,
                         fontWeight: FontWeight.bold,
                       ),
                     ),

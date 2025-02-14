@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:testapp/pages/LoginScreen.dart';
 import 'package:testapp/utils/colors.dart';
+import 'package:testapp/utils/theme_provider.dart';
 
 class Selecttype extends StatefulWidget {
   const Selecttype({super.key});
@@ -10,9 +12,11 @@ class Selecttype extends StatefulWidget {
 }
 
 class _SelecttypeState extends State<Selecttype> {
+
   String selectedOption = 'STUDENT';
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     double w= MediaQuery.of(context).size.width;
     double h= MediaQuery.of(context).size.height;
     return Scaffold(

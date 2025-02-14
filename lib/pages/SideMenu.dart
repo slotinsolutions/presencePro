@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:provider/provider.dart';
+import 'package:testapp/pages/customerSupport.dart';
 import 'package:testapp/pages/profile.dart';
 import 'package:testapp/utils/Firebase_auth_services.dart';
 import 'package:testapp/utils/colors.dart';
+import 'package:testapp/utils/theme_provider.dart';
 import 'selectType.dart';
 class SideMenu extends StatefulWidget {
   const SideMenu({super.key});
@@ -12,14 +15,17 @@ class SideMenu extends StatefulWidget {
 }
 
 class _SideMenuState extends State<SideMenu> {
+
   final _auth = FirebaseAuthServices();
   @override
   Widget build(BuildContext context) {
+
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Drawer(
-      backgroundColor: Colors.white,
+      backgroundColor: themeProvider.themeColor,
       child: Container(
         decoration: BoxDecoration(
-            color: Colors.white
+            color: themeProvider.themeColor
         ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -37,9 +43,19 @@ class _SideMenuState extends State<SideMenu> {
                           fit: BoxFit.fitWidth
                       )
                   ),),),
+            ListTile(
+              leading: Icon(Icons.brightness_6, color: themeProvider.textColor),
+              title: Text(
+                themeProvider.isDarkMode ? "Switch to Light Mode" : "Switch to Dark Mode",
+                style: TextStyle(color: themeProvider.textColor),
+              ),
+              onTap: () {
+                themeProvider.toggleTheme();
+              },
+            ),
 
             Container(
-              padding: EdgeInsets.only(left: 5,right: 5,top: 5),
+              padding: EdgeInsets.only(left: 5,right: 5),
               margin: EdgeInsets.only(right: 20),
               child: TextButton(
                   onPressed: () async {
@@ -49,9 +65,27 @@ class _SideMenuState extends State<SideMenu> {
 
                   }, child: Row(
                 children: [
-                  Icon(Icons.person,color: Colors.grey[800],size: 24),
+                  Icon(Icons.person,color: themeProvider.textColor,size: 24),
                   SizedBox(width: 10,),
-                  Text("Profile",style:TextStyle(color: Colors.grey[800],fontSize: 18))
+                  Text("Profile",style:TextStyle(color:themeProvider.textColor,fontSize: 18))
+                ],
+              )
+              ),
+            ),
+            Container(
+              padding: EdgeInsets.only(left: 5,right: 5),
+              margin: EdgeInsets.only(right: 20),
+              child: TextButton(
+                  onPressed: () async {
+
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => Customersupport()));
+
+
+                  }, child: Row(
+                children: [
+                  Icon(Icons.call,color: themeProvider.textColor,size: 24),
+                  SizedBox(width: 10,),
+                  Text("Customer Support",style:TextStyle(color: themeProvider.textColor,fontSize: 18))
                 ],
               )
               ),

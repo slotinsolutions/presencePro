@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:table_calendar/table_calendar.dart';
 import 'package:testapp/utils/colors.dart';
+import 'package:testapp/utils/theme_provider.dart';
 
 class MonthlyAttendance extends StatefulWidget {
   @override
@@ -36,7 +38,7 @@ class _MonthlyAttendanceState extends State<MonthlyAttendance> {
       case 'Absent':
         return Colors.red.shade100;
       case 'Holiday':
-        return Colors.blue.shade100;
+        return Colors.blueGrey[300]!;
       case 'Future':
         return Colors.transparent;
       default:
@@ -48,8 +50,9 @@ class _MonthlyAttendanceState extends State<MonthlyAttendance> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Container(
-      color: Colors.white,
+      color:themeProvider.themeColor,
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -80,8 +83,8 @@ class _MonthlyAttendanceState extends State<MonthlyAttendance> {
                     alignment: Alignment.center,
                     child: Text(
                       '${day.day}',
-                      style:const TextStyle(
-                        color: Colors.black,
+                      style: TextStyle(
+                        color: themeProvider.textColor,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -100,8 +103,8 @@ class _MonthlyAttendanceState extends State<MonthlyAttendance> {
                     alignment: Alignment.center,
                     child: Text(
                       '${day.day}',
-                      style: const TextStyle(
-                        color: Colors.black,
+                      style: TextStyle(
+                        color:  themeProvider.textColor,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
@@ -118,8 +121,8 @@ class _MonthlyAttendanceState extends State<MonthlyAttendance> {
                 CalendarFormat.month: 'Month',
               },
               availableGestures: AvailableGestures.all,
-              headerStyle: const HeaderStyle(
-                titleTextStyle: TextStyle(fontSize:18,fontWeight: FontWeight.bold),
+              headerStyle: HeaderStyle(
+                titleTextStyle: TextStyle(fontSize:18,color: themeProvider.textColor,fontWeight: FontWeight.bold),
 
                 formatButtonVisible: false,
                 titleCentered: true,

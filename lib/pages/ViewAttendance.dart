@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:testapp/pages/SideMenu.dart';
 import 'package:testapp/utils/colors.dart';
 import 'package:testapp/utils/components.dart';
 import 'package:testapp/pages/DailyAttendance.dart';
 import 'package:testapp/pages/WeeklyAttendance.dart';
 import 'package:testapp/pages/MonthlyAttendance.dart';
+import 'package:testapp/utils/theme_provider.dart';
 class ViewAttendanceScreen extends StatefulWidget {
   final String studentid;
   const ViewAttendanceScreen({super.key,required this.studentid});
@@ -80,11 +82,12 @@ class _ViewAttendanceScreenState extends State<ViewAttendanceScreen> with Single
     }
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
       endDrawerEnableOpenDragGesture: true,
       key: _drawerkey,
       drawer: SideMenu(),
-      backgroundColor: Colors.white,
+      backgroundColor: themeProvider.themeColor,
       appBar:  AppBar(
         centerTitle: true,
         automaticallyImplyLeading: false,
@@ -98,17 +101,18 @@ class _ViewAttendanceScreenState extends State<ViewAttendanceScreen> with Single
           _drawerkey.currentState?.openDrawer();
         },
             icon: Icon(Icons.menu,color: Colors.white,)),
-      ), body:isLoading==true? Center(
+      ),
+      body:isLoading==true? Center(
         child: CircularProgressIndicator(color: AppColors.primary,),
       ):Container(
-        color: Colors.white,
+        color: themeProvider.themeColor,
         child: Padding(
             padding: EdgeInsets.all(15),
             child: Column(
 
               children: [
                Card(
-                 color: Colors.white,
+                 color: themeProvider.themeColor,
 
                  elevation: 5,
                  child: Padding(
@@ -119,7 +123,7 @@ class _ViewAttendanceScreenState extends State<ViewAttendanceScreen> with Single
                        Column(
                          crossAxisAlignment: CrossAxisAlignment.start,
                          children: [
-                           Text("Welcome,",style: TextStyle(fontSize: 25,color: AppColors.black),),
+                           Text("Welcome,",style: TextStyle(fontSize: 25,color: themeProvider.textColor),),
                            Text(studentData?['studentName'],softWrap:true,
                                overflow: TextOverflow.visible,
 
@@ -131,7 +135,7 @@ class _ViewAttendanceScreenState extends State<ViewAttendanceScreen> with Single
 
                            children: [
                              Components().showAttendancePercent(0.85,1),
-                             Text("Overall",style: TextStyle(fontSize: 18,fontWeight: FontWeight.w500),)
+                             Text("Overall",style: TextStyle(fontSize: 18,color: themeProvider.textColor,fontWeight: FontWeight.w500),)
 
 
                            ],

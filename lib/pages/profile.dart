@@ -1,8 +1,10 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:provider/provider.dart';
 import 'package:testapp/utils/colors.dart';
 import 'package:testapp/utils/components.dart';
+import 'package:testapp/utils/theme_provider.dart';
 
 class Profile extends StatefulWidget {
   const Profile({super.key});
@@ -57,19 +59,20 @@ class _ProfileState extends State<Profile> {
   }
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     double w = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar:  Components().appBar("Change Password", AppColors.primary),
-    backgroundColor: AppColors.white,
+    backgroundColor:themeProvider.themeColor,
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Components().InputBox2(currentPasswordController, Icon(Icons.lock), "Current Password"),
+              Components().InputBox2(currentPasswordController, Icon(Icons.lock), "Current Password",themeProvider.themeColor,themeProvider.textColor),
               SizedBox(height: 15,),
-              Components().InputBox2(newPasswordController, Icon(Icons.lock), "New Password"),
+              Components().InputBox2(newPasswordController, Icon(Icons.lock), "New Password",themeProvider.themeColor,themeProvider.textColor),
               SizedBox(height: 30,),
               Center(
                 child: SizedBox(

@@ -1,11 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:testapp/pages/Teachers.dart';
 import 'package:testapp/utils/colors.dart';
 import 'package:testapp/utils/components.dart';
 import 'package:testapp/utils/constants.dart';
 import 'package:testapp/utils/firestore.dart';
+import 'package:testapp/utils/theme_provider.dart';
 
 class AddstudentScreen extends StatefulWidget {
   const AddstudentScreen({super.key});
@@ -59,10 +61,11 @@ class _AddstudentScreenState extends State<AddstudentScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     double w = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar:  Components().appBar("ADD STUDENT", AppColors.primary),
-    backgroundColor: AppColors.white,
+    backgroundColor: themeProvider.themeColor,
       body: Padding(
           padding: EdgeInsets.all(20),
       child: Center(
@@ -84,14 +87,16 @@ class _AddstudentScreenState extends State<AddstudentScreen> {
                   ),
                   child: DropdownButtonFormField(
                     value: selectedCLass,
+                    hint: Text("Select Class of Student",style:TextStyle(color: themeProvider.textColor) ,),
                     decoration: InputDecoration(
 
                       prefixIcon: Icon(Icons.menu_book_rounded,color: AppColors.primary,),
                       suffixIconColor: AppColors.primary,
                       filled: true,
-                      fillColor: AppColors.white,
+                      fillColor: themeProvider.themeColor,
+
                       hintText: "Select Class of Student",
-                      hintStyle: TextStyle(color: Colors.grey),
+                      hintStyle: TextStyle(color: AppColors.primary),
                       border: OutlineInputBorder(
                           borderSide: BorderSide.none,
                           borderRadius: BorderRadius.circular(30)
@@ -117,29 +122,29 @@ class _AddstudentScreenState extends State<AddstudentScreen> {
                   ),
                 ),
                 SizedBox(height: 15,),
-                Components().InputBox2(name, Icon(Icons.person), "Name"),
+                Components().InputBox2(name, Icon(Icons.person), "Name",themeProvider.themeColor,themeProvider.textColor),
                 SizedBox(height: 15,),
-                Components().InputBox2(email, Icon(Icons.email), "Email Address"),
+                Components().InputBox2(email, Icon(Icons.email), "Email Address",themeProvider.themeColor,themeProvider.textColor),
                 SizedBox(height: 15,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     SizedBox(
                         width: w*0.51,
-                        child: Components().InputBox2(password, Icon(Icons.lock), "Password")),
+                        child: Components().InputBox2(password, Icon(Icons.lock), "Password",themeProvider.themeColor,themeProvider.textColor)),
 
                     SizedBox(
 
                         width:w*0.38,
-                        child: Components().InputBox2(rollno, Icon(Icons.format_list_numbered_rtl), "Roll Number")),
+                        child: Components().InputBox2(rollno, Icon(Icons.format_list_numbered_rtl), "Roll Number",themeProvider.themeColor,themeProvider.textColor)),
                   ],
                 ),
                 SizedBox(height: 15,),
-                Components().InputBox2(rfidID, Icon(Icons.signal_cellular_alt), "RFID Tag ID"),
+                Components().InputBox2(rfidID, Icon(Icons.signal_cellular_alt), "RFID Tag ID",themeProvider.themeColor,themeProvider.textColor),
                 SizedBox(height: 15,),
-                Components().InputBox2(beaconID, Icon(Icons.bluetooth_audio), "Beacon ID"),
+                Components().InputBox2(beaconID, Icon(Icons.bluetooth_audio), "Beacon ID",themeProvider.themeColor,themeProvider.textColor),
                 SizedBox(height: 15,),
-                Components().InputBox2(adminPassword, Icon(Icons.lock), "Enter Admin Password"),
+                Components().InputBox2(adminPassword, Icon(Icons.lock), "Enter Admin Password",themeProvider.themeColor,themeProvider.textColor),
 
                 SizedBox(height: 30,),
                 Center(

@@ -1,9 +1,11 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/circular_percent_indicator.dart';
+import 'package:provider/provider.dart';
 import 'package:testapp/pages/ViewAttendance.dart';
 import 'package:testapp/utils/colors.dart';
 import 'package:testapp/utils/components.dart';
+import 'package:testapp/utils/theme_provider.dart';
 class StudentList extends StatefulWidget {
   final String className;
   final String userType;
@@ -19,11 +21,12 @@ class _StudentListState extends State<StudentList> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
 
     return Scaffold(
 
       appBar:  Components().appBar('CLASS ${widget.className}', AppColors.primary),
-    backgroundColor: AppColors.white,
+    backgroundColor: themeProvider.themeColor,
       body: Container(
         child: Padding(padding: EdgeInsets.all(20),
       child: StreamBuilder<QuerySnapshot>(
@@ -50,7 +53,7 @@ class _StudentListState extends State<StudentList> {
           itemBuilder: (context, index) {
             var student = students[index];
             return Card(
-              color: Colors.white,
+              color: themeProvider.themeColor,
               elevation: 5,
               child: ListTile(
                 onLongPress: () {
@@ -70,7 +73,7 @@ class _StudentListState extends State<StudentList> {
                 title: Text(student['studentName'], style: TextStyle(fontSize: 16,
                     fontWeight: FontWeight.bold,
                     color: AppColors.primary),),
-                subtitle: Text(student['rollNumber']),
+                subtitle: Text(student['rollNumber'],style: TextStyle(color: themeProvider.textColor),),
                 trailing: Components().showAttendancePercent(0.85, 0.4),
               ),
             );

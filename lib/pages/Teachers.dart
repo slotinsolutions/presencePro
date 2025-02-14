@@ -1,10 +1,12 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:testapp/pages/AddTeacher.dart';
 import 'package:testapp/utils/colors.dart';
 import 'package:testapp/utils/components.dart';
 import 'package:testapp/utils/constants.dart';
+import 'package:testapp/utils/theme_provider.dart';
 class TeachersScreen extends StatefulWidget {
   const TeachersScreen({super.key});
 
@@ -17,9 +19,10 @@ class _TeachersScreenState extends State<TeachersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
       appBar:  Components().appBar("TEACHERS", AppColors.primary),
-      backgroundColor: AppColors.white,
+      backgroundColor: themeProvider.themeColor,
         floatingActionButton:FloatingActionButton(
           splashColor: AppColors.primary,
           backgroundColor: AppColors.primary,
@@ -55,7 +58,7 @@ class _TeachersScreenState extends State<TeachersScreen> {
                     var teacher = teachers[index];
                     return Card(
                       elevation: 5,
-                      color: Colors.white,
+                      color: themeProvider.themeColor,
                       child: ListTile(
                         onLongPress: (){
                           showDialog(context: context,
@@ -64,9 +67,9 @@ class _TeachersScreenState extends State<TeachersScreen> {
 
                               });
                         },
-                        title: Text(teacher['name']),
-                        subtitle: Text(teacher['email']),
-                        trailing: Text(teacher['subject']),
+                        title: Text(teacher['name'],style: TextStyle(color: themeProvider.textColor),),
+                        subtitle: Text(teacher['email'],style: TextStyle(color: themeProvider.textColor)),
+                        trailing: Text(teacher['subject'],style: TextStyle(color: themeProvider.textColor)),
                       ),
                     );
                   });

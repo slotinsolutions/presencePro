@@ -1,12 +1,14 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import 'package:testapp/pages/StudentList.dart';
 import 'package:testapp/utils/colors.dart';
 import 'package:testapp/utils/components.dart';
 import 'package:testapp/utils/constants.dart';
 import 'package:testapp/utils/firestore.dart';
+import 'package:testapp/utils/theme_provider.dart';
 import 'SideMenu.dart';
 
 class ClassListScreen extends StatefulWidget {
@@ -67,8 +69,10 @@ class _ClassListScreenState extends State<ClassListScreen> {
     showDialog(
         context: context,
         builder: (BuildContext context){
+          final themeProvider = Provider.of<ThemeProvider>(context);
+
           return Dialog(
-            backgroundColor: Colors.white,
+            backgroundColor: themeProvider.themeColor,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
 
@@ -83,7 +87,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
                   Text("  Enter Class Details",style: TextStyle(fontSize: 30,color: AppColors.primary,fontWeight: FontWeight.w500),),
                   SizedBox(height: 20,),
 
-                  Components().InputBox2(classname, Icon(Icons.menu_book), "Class Name"),
+                  Components().InputBox2(classname, Icon(Icons.menu_book), "Class Name",themeProvider.themeColor,themeProvider.textColor),
                   SizedBox(height: 15,),
                   Container(
                     decoration: BoxDecoration(
@@ -96,14 +100,16 @@ class _ClassListScreenState extends State<ClassListScreen> {
                     ),
                     child: DropdownButtonFormField(
                       value: selectedTeacher,
+                      hint: Text("Select Class Teacher",
+                      style: TextStyle(color: themeProvider.textColor),),
+
                       decoration: InputDecoration(
 
                         prefixIcon: Icon(Icons.menu_book_rounded,color: AppColors.primary,),
                         suffixIconColor: AppColors.primary,
                         filled: true,
-                        fillColor: AppColors.white,
-                        hintText: "Select Class Teacher",
-                        hintStyle: TextStyle(color: Colors.grey),
+                        fillColor: themeProvider.themeColor,
+
                         border: OutlineInputBorder(
                             borderSide: BorderSide.none,
                             borderRadius: BorderRadius.circular(30)
@@ -113,7 +119,9 @@ class _ClassListScreenState extends State<ClassListScreen> {
                         return DropdownMenuItem(
 
 
+
                             value: teacherName,
+
 
                             child: Text(teacherName));
                       }).toList(),
@@ -152,11 +160,12 @@ class _ClassListScreenState extends State<ClassListScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
       endDrawerEnableOpenDragGesture: true,
       key: _drawerkey,
       drawer: SideMenu(),
-      backgroundColor: AppColors.white,
+      backgroundColor: themeProvider.themeColor,
 
 
       floatingActionButton:widget.userType=="ADMIN"?FloatingActionButton(
@@ -212,7 +221,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
                         Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text("Welcome,",style: TextStyle(fontSize: 25,color: AppColors.black),),
+                            Text("Welcome,",style: TextStyle(fontSize: 25,color: themeProvider.textColor),),
                             Text(_auth.currentUser!.displayName??"Default User",softWrap:true,
                                 overflow: TextOverflow.visible,
 
@@ -256,7 +265,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
           itemBuilder: (context, index) {
             var classData = classDocs[index].data();
             return Card(
-              color: Colors.white,
+              color: themeProvider.themeColor,
               elevation: 5,
               child: ListTile(
                 onTap: () {
@@ -270,8 +279,8 @@ class _ClassListScreenState extends State<ClassListScreen> {
                     fontWeight: FontWeight.bold,
                     fontSize: 18,
                     color: AppColors.primary),),
-                subtitle: Text(classData["classTeacher"]),
-                trailing: Text('${Constants().present[index]}/50'),
+                subtitle: Text(classData["classTeacher"],style: TextStyle(color: themeProvider.textColor),),
+                trailing: Text('${Constants().present[index]}/50',style: TextStyle(color: themeProvider.textColor)),
               ),
             );
           }

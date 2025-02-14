@@ -1,11 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:provider/provider.dart';
 import 'package:testapp/main.dart';
 import 'package:testapp/pages/checkEmail.dart';
 import 'package:testapp/utils/colors.dart';
 
 import 'package:testapp/utils/components.dart';
+import 'package:testapp/utils/theme_provider.dart';
 class forgetPassScreen extends StatefulWidget {
   final String userType;
   forgetPassScreen({super.key,required this.userType});
@@ -38,6 +40,7 @@ class _forgetPassScreenState extends State<forgetPassScreen> {
   
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     double screenwidth = MediaQuery.of(context).size.width;
     return Scaffold(
       body: Container(
@@ -70,7 +73,7 @@ class _forgetPassScreenState extends State<forgetPassScreen> {
                     ],
                   ),
                   SizedBox(height:40,),
-                  Components().InputBox(emailcontroller,"Email",Icon(Icons.email)),
+                  Components().InputBox(emailcontroller,"Email",Icon(Icons.email),Colors.white,Colors.black),
                   SizedBox(height:40,),
                    SizedBox(
                     width: screenwidth*0.6,

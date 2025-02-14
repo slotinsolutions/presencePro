@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:provider/provider.dart';
 import 'package:testapp/main.dart';
 import 'package:testapp/pages/AdminHomePage.dart';
 import 'package:testapp/pages/ClassesList.dart';
@@ -9,6 +10,7 @@ import 'package:testapp/utils/Firebase_auth_services.dart';
 import 'package:testapp/utils/colors.dart';
 import 'package:testapp/pages/ForgetPasswordPage.dart';
 import 'package:testapp/utils/components.dart';
+import 'package:testapp/utils/theme_provider.dart';
 class loginScreen extends StatefulWidget {
   final String userType;
    loginScreen({super.key,required this.userType});
@@ -27,6 +29,7 @@ class _loginScreenState extends State<loginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     double screenwidth = MediaQuery.of(context).size.width;
 
     return Scaffold(
@@ -60,9 +63,9 @@ class _loginScreenState extends State<loginScreen> {
             Container(
               child: Column(
                 children: [
-                  Components().InputBox(email,"Email",Icon(Icons.mail)),
+                  Components().InputBox(email,"Email",Icon(Icons.mail),Colors.white,Colors.black),
                   SizedBox(height: 20,),
-                  Components().InputBox(pass,"Password",Icon(Icons.lock)),
+                  Components().InputBox(pass,"Password",Icon(Icons.lock),Colors.white,Colors.black),
                   SizedBox(height:40,),
                   SizedBox(
                     width: screenwidth*0.6,

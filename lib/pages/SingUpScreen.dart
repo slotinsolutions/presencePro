@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:provider/provider.dart';
 import 'package:testapp/main.dart';
 import 'package:testapp/pages/AdminHomePage.dart';
 import 'package:testapp/pages/ClassesList.dart';
@@ -9,6 +10,7 @@ import 'package:testapp/utils/Firebase_auth_services.dart';
 import 'package:testapp/utils/colors.dart';
 import 'package:testapp/utils/components.dart';
 import 'package:testapp/pages/ViewAttendance.dart';
+import 'package:testapp/utils/theme_provider.dart';
 class signUpScreen extends StatefulWidget {
   const signUpScreen({super.key});
 
@@ -35,6 +37,7 @@ class _signUpScreenState extends State<signUpScreen> {
     }
   } @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     double screenwidth = MediaQuery.of(context).size.width;
     return Scaffold(
 
@@ -70,11 +73,11 @@ class _signUpScreenState extends State<signUpScreen> {
             Container(
               child: Column(
                 children: [
-                  Components().InputBox(name,"Name",Icon(Icons.person)),
+                  Components().InputBox(name,"Name",Icon(Icons.person),Colors.white,Colors.black),
                   SizedBox(height: 20,),
-                  Components().InputBox(email,"Email",Icon(Icons.email)),
+                  Components().InputBox(email,"Email",Icon(Icons.email),Colors.white,Colors.black),
                   SizedBox(height: 20,),
-                  Components().InputBox(pass,"Password",Icon(Icons.lock)),
+                  Components().InputBox(pass,"Password",Icon(Icons.lock),Colors.white,Colors.black),
                   SizedBox(height:40,),
                   SizedBox(
                     width: screenwidth*0.6,

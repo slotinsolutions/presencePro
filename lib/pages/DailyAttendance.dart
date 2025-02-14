@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:testapp/utils/colors.dart';
+import 'package:testapp/utils/theme_provider.dart';
 
 class DailyAttendance extends StatefulWidget {
   @override
@@ -41,11 +43,12 @@ class _DailyAttendanceState extends State<DailyAttendance> {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     final attendanceStatus = getAttendanceStatus();
     final attendanceColor = getAttendanceColor(attendanceStatus);
 
     return Container(
-      color: Colors.white,
+      color: themeProvider.themeColor,
 
       child: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -61,7 +64,7 @@ class _DailyAttendanceState extends State<DailyAttendance> {
                   onPressed: () => _changeDate(-1),  ),
                 Text(
                   "${selectedDate.toLocal()}".split(' ')[0],
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  style: TextStyle(fontSize: 18, color:themeProvider.textColor,fontWeight: FontWeight.bold),
                 ),
 
                 IconButton(
@@ -82,7 +85,7 @@ class _DailyAttendanceState extends State<DailyAttendance> {
               color: Colors.transparent,
               width: MediaQuery.sizeOf(context).width,
               child: Card(
-                color: Colors.white,
+                color: themeProvider.themeColor,
                 elevation: 4,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -96,6 +99,7 @@ class _DailyAttendanceState extends State<DailyAttendance> {
                         "Today's Attendance",
                         style: TextStyle(
                           fontSize: 18,
+                          color: themeProvider.themeColor,
                           fontWeight: FontWeight.bold,
                         ),
                       ),

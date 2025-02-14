@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:testapp/utils/colors.dart';
+import 'package:testapp/utils/theme_provider.dart';
 class Checkemail extends StatefulWidget {
   const Checkemail({super.key});
 
@@ -10,6 +12,7 @@ class Checkemail extends StatefulWidget {
 class _CheckemailState extends State<Checkemail> {
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
     return Scaffold(
         body: Container(
           height: double.infinity,
