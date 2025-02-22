@@ -22,6 +22,7 @@ class _SelecttypeState extends State<Selecttype> {
     return Scaffold(
     body: Container(
 
+
       decoration: BoxDecoration(
           gradient: LinearGradient(colors: [
             AppColors.bgColor2,
@@ -54,6 +55,35 @@ class _SelecttypeState extends State<Selecttype> {
               children: [
             Text("  Select User Type",style: TextStyle(color: Colors.white,fontSize: 30,fontWeight: FontWeight.bold),),
             SizedBox(height: 20,),
+                Container(
+                  height: h*0.12,
+                  decoration: BoxDecoration(
+                      border: Border.all(
+                        color: Colors.white,width: 1.0,
+
+                      ),
+                      borderRadius: BorderRadius.circular(8.0)
+
+                  ),
+                  child: Center(
+                    child: ListTile(
+                      onTap: (){
+                        setState(() {
+                          selectedOption = "OWNER";
+                        });
+                      },
+                      title: Text("OWNER",style: TextStyle(color: Colors.white,fontSize: 24)),
+                      leading: Radio(value: "OWNER", groupValue: selectedOption,
+                          activeColor: Colors.white,
+                          onChanged: (value){
+                            setState(() {
+                              selectedOption = value!;
+                            });
+                          }),
+                    ),
+                  ),
+                ),
+                Divider(height: 30,),
             Container(
               height: h*0.12,
               decoration: BoxDecoration(

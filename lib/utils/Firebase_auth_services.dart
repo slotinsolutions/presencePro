@@ -15,6 +15,7 @@ class FirebaseAuthServices {
   Future<void> loginUser(BuildContext context, String email, String password, String selectedRole) async {
     try {
 
+
       UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: email,
         password: password,
@@ -41,7 +42,7 @@ class FirebaseAuthServices {
 
       Fluttertoast.showToast(msg: "Logged in Successfully",
           fontSize: 18);
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>actualRole=="STUDENT"?ViewAttendanceScreen(studentid: uid,):Adminhomepage(userType:actualRole)));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>actualRole=="STUDENT"?ViewAttendanceScreen(studentid: uid,):Adminhomepage(userType:selectedRole)));
 
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Login Failed: $e")));

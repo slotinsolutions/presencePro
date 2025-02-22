@@ -88,7 +88,7 @@ class _loginScreenState extends State<loginScreen> {
 
 
 
-            widget.userType =="ADMIN"?
+            widget.userType =="OWNER"?
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
@@ -98,7 +98,7 @@ class _loginScreenState extends State<loginScreen> {
                 ),
                 InkWell(
                   onTap: (){
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>signUpScreen()));
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=>signUpScreen()));
                   },
                     child: Text('SignUp!',style: TextStyle(color: AppColors.primary,fontSize: 18,fontWeight: FontWeight.bold),
                     )),

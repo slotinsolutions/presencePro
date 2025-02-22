@@ -21,6 +21,9 @@ class signUpScreen extends StatefulWidget {
 class _signUpScreenState extends State<signUpScreen> {
   final FirebaseAuthServices _auth = FirebaseAuthServices();
   TextEditingController email = TextEditingController();
+
+  TextEditingController institueName= TextEditingController();
+
   TextEditingController pass = TextEditingController();
   TextEditingController name = TextEditingController();
   void _signup()async{
@@ -30,7 +33,7 @@ class _signUpScreenState extends State<signUpScreen> {
     User? user = await _auth.signUpWithEmailAndPassword(username,usermail, userpass);
     if(user!= null){
       Fluttertoast.showToast(msg: "Registered Successfully");
-      Navigator.pushReplacement(      context, MaterialPageRoute(builder: (context)=>Adminhomepage(userType: "ADMIN",)));
+      Navigator.push(      context, MaterialPageRoute(builder: (context)=>Adminhomepage(userType: "OWNER",)));
     }
     else{
       print("some error occured");
@@ -75,6 +78,9 @@ class _signUpScreenState extends State<signUpScreen> {
                 children: [
                   Components().InputBox(name,"Name",Icon(Icons.person),Colors.white,Colors.black),
                   SizedBox(height: 20,),
+                  Components().InputBox(institueName,"Institute Name",Icon(Icons.school),Colors.white,Colors.black),
+                  SizedBox(height: 20,),
+
                   Components().InputBox(email,"Email",Icon(Icons.email),Colors.white,Colors.black),
                   SizedBox(height: 20,),
                   Components().InputBox(pass,"Password",Icon(Icons.lock),Colors.white,Colors.black),
