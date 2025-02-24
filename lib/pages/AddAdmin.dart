@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:provider/provider.dart';
 import 'package:testapp/utils/colors.dart';
 import 'package:testapp/utils/components.dart';
+import 'package:testapp/utils/firestore.dart';
 import 'package:testapp/utils/theme_provider.dart';
 class Addadmin extends StatefulWidget {
   const Addadmin({super.key});
@@ -54,6 +56,12 @@ class _AddadminState extends State<Addadmin> {
                             backgroundColor: AppColors.primary
                         ),
                         onPressed: ()async{
+                          String result = await Firebase_Firestore()
+                              .addAdminAsOwner( name.text,email.text, password.text, ownerPassword.text);
+
+
+                          Fluttertoast.showToast(msg: result, toastLength: Toast.LENGTH_SHORT);
+                          Navigator.pop(context);
 
                         },
                         child: Text("Register Admin",style: TextStyle(fontSize: 14,color:themeProvider.themeColor),)),

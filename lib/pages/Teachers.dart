@@ -8,7 +8,8 @@ import 'package:testapp/utils/components.dart';
 import 'package:testapp/utils/constants.dart';
 import 'package:testapp/utils/theme_provider.dart';
 class TeachersScreen extends StatefulWidget {
-  const TeachersScreen({super.key});
+  final String userType;
+  const TeachersScreen({super.key,required this.userType});
 
   @override
   State<TeachersScreen> createState() => _TeachersScreenState();
@@ -27,7 +28,7 @@ class _TeachersScreenState extends State<TeachersScreen> {
           splashColor: AppColors.primary,
           backgroundColor: AppColors.primary,
           onPressed: (){
-           Navigator.push(context, MaterialPageRoute(builder: (context)=>AddteacherScreen()));
+           Navigator.push(context, MaterialPageRoute(builder: (context)=>AddteacherScreen(userType:widget.userType)));
           },
           child: Icon(Icons.add,color: Colors.white,),),
 

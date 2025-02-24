@@ -121,13 +121,66 @@ class Firebase_Firestore{
 
     return null;
   }
-
-
-
-  Future<String> addTeacher(String adminId, String email, String password, String name, String subject,String adminPass) async {
+  Future<String> addAdminAsOwner(String name, String email, String adminPass, String ownerPass) async {
     try {
       FirebaseAuth auth = FirebaseAuth.instance;
-      User? currentAdmin = auth.currentUser;
+      User? currentOwner = auth.currentUser;
+
+      if (currentOwner == null) {
+        return "Error: Owner not authenticated.";
+      }
+
+      String ownerId = currentOwner.uid; // Fetch the logged-in owner’s UID
+
+      // Create a new admin account
+      UserCredential userCredential = await auth.createUserWithEmailAndPassword(
+        email: email,
+        password: adminPass,
+      );
+      await userCredential.user!.updateDisplayName(name);
+      await userCredential.user!.reload();
+
+      String adminId = userCredential.user!.uid;
+
+      // Store admin data under the correct owner in Firestore
+      await FirebaseFirestore.instance
+          .collection('owners')
+          .doc(ownerId)
+          .collection('admins')
+          .doc(adminId)
+          .set({
+        'email': email,
+        'name': name,
+        'adminId': adminId,
+        'ownerId': ownerId, // Save ownerId for reference
+      });
+
+      // Log out the newly created admin
+      await auth.signOut();
+
+      // Re-authenticate the owner
+      await auth.signInWithEmailAndPassword(
+        email: currentOwner.email!,
+        password: ownerPass, // Owner's password for security
+      );
+
+      return "Admin added successfully by Owner";
+    } catch (e) {
+      return "Error: $e";
+    }
+  }
+
+
+
+
+
+  Future<String> addTeacherAsOwner(
+      String ownerId, String email, String password, String name, String subject, String ownerPass) async {
+    try {
+      FirebaseAuth auth = FirebaseAuth.instance;
+      User? currentOwner = auth.currentUser;
+
+      // Create a new teacher account
       UserCredential userCredential = await auth.createUserWithEmailAndPassword(
         email: email,
         password: password,
@@ -137,29 +190,108 @@ class Firebase_Firestore{
 
       String teacherId = userCredential.user!.uid;
 
-
+      // Store teacher data under the owner in Firestore
       await FirebaseFirestore.instance
-          .collection('users')
-          .doc(adminId)
+          .collection('owners')
+          .doc(ownerId)
           .collection('teachers')
           .doc(teacherId)
           .set({
         'email': email,
         'name': name,
         'teacherId': teacherId,
+        'ownerId': ownerId,
+        'subject': subject,
+      });
+
+      // Log out the newly created teacher
+      await auth.signOut();
+
+      // Re-authenticate the owner after adding the teacher
+      if (currentOwner != null) {
+        await auth.signInWithEmailAndPassword(
+          email: currentOwner.email!,
+          password: ownerPass, // ⚠ Securely handle passwords
+        );
+      }
+
+      return "Teacher added successfully by Owner";
+    } catch (e) {
+      return "Error: $e";
+    }
+  }
+
+  Future<String?> getOwnerIdForAdmin(String adminId) async {
+    try {
+      QuerySnapshot owners = await FirebaseFirestore.instance.collection("owners").get();
+
+      for (var owner in owners.docs) {
+        DocumentSnapshot adminDoc = await FirebaseFirestore.instance
+            .collection("owners")
+            .doc(owner.id)
+            .collection("admins")
+            .doc(adminId)
+            .get();
+
+        if (adminDoc.exists) {
+          return owner.id; // Return the ownerId
+        }
+      }
+    } catch (e) {
+      print("Error fetching ownerId: $e");
+    }
+    return null; // Return null if ownerId is not found
+  }
+
+  Future<String> addTeacherAsAdmin(
+      String adminId, String email, String password, String name, String subject, String adminPass) async {
+    try {
+      FirebaseAuth auth = FirebaseAuth.instance;
+      User? currentAdmin = auth.currentUser;
+
+      // Get the ownerId for the admin
+      String? ownerId = await getOwnerIdForAdmin(adminId);
+      if (ownerId == null) {
+        return "Error: Admin's ownerId not found.";
+      }
+
+      // Create a new teacher account
+      UserCredential userCredential = await auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      await userCredential.user!.updateDisplayName(name);
+      await userCredential.user!.reload();
+
+      String teacherId = userCredential.user!.uid;
+
+      // Store teacher data under the correct owner in Firestore
+      await FirebaseFirestore.instance
+          .collection('owners')
+          .doc(ownerId)
+          .collection('teachers')
+          .doc(teacherId)
+          .set({
+        'email': email,
+        'name': name,
+        'teacherId': teacherId,
+        'ownerId': ownerId,
         'adminId': adminId,
         'subject': subject,
       });
 
+      // Log out the newly created teacher
+      await auth.signOut();
 
+      // Re-authenticate the admin after adding the teacher
       if (currentAdmin != null) {
         await auth.signInWithEmailAndPassword(
           email: currentAdmin.email!,
-          password: adminPass, // ⚠ Store securely or prompt for re-login
+          password: adminPass, // ⚠ Securely handle passwords
         );
       }
 
-      return "Teacher added successfully";
+      return "Teacher added successfully by Admin";
     } catch (e) {
       return "Error: $e";
     }

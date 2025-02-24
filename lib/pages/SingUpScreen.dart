@@ -22,7 +22,7 @@ class _signUpScreenState extends State<signUpScreen> {
   final FirebaseAuthServices _auth = FirebaseAuthServices();
   TextEditingController email = TextEditingController();
 
-  TextEditingController institueName= TextEditingController();
+  TextEditingController instituteName= TextEditingController();
 
   TextEditingController pass = TextEditingController();
   TextEditingController name = TextEditingController();
@@ -30,7 +30,8 @@ class _signUpScreenState extends State<signUpScreen> {
     String username = name.text;
     String usermail = email.text;
     String userpass = pass.text;
-    User? user = await _auth.signUpWithEmailAndPassword(username,usermail, userpass);
+    String institutename = instituteName.text;
+    User? user = await _auth.signUpWithEmailAndPassword(username,usermail, userpass, institutename);
     if(user!= null){
       Fluttertoast.showToast(msg: "Registered Successfully");
       Navigator.push(      context, MaterialPageRoute(builder: (context)=>Adminhomepage(userType: "OWNER",)));
@@ -78,7 +79,7 @@ class _signUpScreenState extends State<signUpScreen> {
                 children: [
                   Components().InputBox(name,"Name",Icon(Icons.person),Colors.white,Colors.black),
                   SizedBox(height: 20,),
-                  Components().InputBox(institueName,"Institute Name",Icon(Icons.school),Colors.white,Colors.black),
+                  Components().InputBox(instituteName,"Institute Name",Icon(Icons.school),Colors.white,Colors.black),
                   SizedBox(height: 20,),
 
                   Components().InputBox(email,"Email",Icon(Icons.email),Colors.white,Colors.black),

@@ -52,52 +52,63 @@ class FirebaseAuthServices {
 
 
 
-  Future<User?> signUpWithEmailAndPassword(String name,String email,
-      String password) async {
+  Future<User?> signUpWithEmailAndPassword(String name, String email, String password, String instituteName) async {
     try {
       UserCredential credential = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
       await credential.user!.updateDisplayName(name);
       await credential.user!.reload();
 
-      String uid = credential.user!.uid;
+      String ownerId = credential.user!.uid;
 
-      await FirebaseFirestore.instance.collection("users").doc(uid).set({
-        "name":name,
-        "email":email,
-        "role":"ADMIN",
-        "uid":uid
+      // Store owner details in Firestore
+      await FirebaseFirestore.instance.collection("owners").doc(ownerId).set({
+        "name": name,
+        "email": email,
+        "role": "OWNER",
+        "ownerID": ownerId,
+        "instituteName": instituteName,
       });
-       return credential.user;
 
+      return credential.user;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'email-already-in-use') {
-        Fluttertoast.showToast(msg: "Already a User,Log In!!", toastLength: Toast.LENGTH_SHORT);
-      }  else {
+        Fluttertoast.showToast(msg: "Already a User, Log In!!", toastLength: Toast.LENGTH_SHORT);
+      } else {
         Fluttertoast.showToast(msg: "Sign Up Failed: ${e.message}", toastLength: Toast.LENGTH_SHORT);
       }
     } catch (e) {
       Fluttertoast.showToast(msg: "An error occurred: $e", toastLength: Toast.LENGTH_SHORT);
     }
-
     return null;
   }
 
 
-  Future<String> getUserRole(String uid) async {
-     final FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-    DocumentSnapshot adminDoc = await firestore.collection("users").doc(uid).get();
-    if (adminDoc.exists) {
-      return "ADMIN";
+
+  Future<String> getUserRole(String uid) async {
+    final FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+    DocumentSnapshot ownerDoc = await firestore.collection("owners").doc(uid).get();
+    if (ownerDoc.exists) {
+      return "OWNER";
     }
 
+    QuerySnapshot owners = await firestore.collection("owners").get();
+    for (var owner in owners.docs) {
+      DocumentSnapshot adminDoc = await firestore
+          .collection("owners")
+          .doc(owner.id)
+          .collection("admins")
+          .doc(uid)
+          .get();
+      if (adminDoc.exists) {
+        return "ADMIN";
+      }
 
-    QuerySnapshot admins = await firestore.collection("users").get();
-    for (var admin in admins.docs) {
       DocumentSnapshot teacherDoc = await firestore
-          .collection("users")
-          .doc(admin.id)
+          .collection("owners")
+          .doc(owner.id)
           .collection("teachers")
           .doc(uid)
           .get();
@@ -106,29 +117,10 @@ class FirebaseAuthServices {
       }
     }
 
-
     return "STUDENT";
   }
 
 
-  Future<User?> signInWithEmailAndPassword(String email, String password) async {
-    try {
-      UserCredential credential = await _auth.signInWithEmailAndPassword(
-          email: email, password: password);
-      return credential.user;
-    }  on FirebaseAuthException catch (e) {
-      print('Error code: ${e.code}');
-      if (e.code == "invalid-credential") {
-        Fluttertoast.showToast(msg: "Incorrect email or Password", toastLength: Toast.LENGTH_SHORT);
-      }  else {
-        Fluttertoast.showToast(msg: "Login Failed: ${e.message}", toastLength: Toast.LENGTH_SHORT);
-      }
-    } catch (e) {
-      print("Unexpected error: $e");
-      Fluttertoast.showToast(msg: "An unexpected error occurred", toastLength: Toast.LENGTH_SHORT);
-    }
-    return null;
-  }
   Future<void> signOut() async{
     try{
       await _auth.signOut();

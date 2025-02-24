@@ -10,6 +10,7 @@ import 'package:testapp/pages/ViewAttendance.dart';
 import 'package:testapp/pages/selectType.dart';
 import 'package:testapp/utils/Firebase_auth_services.dart';
 import 'package:testapp/utils/colors.dart';
+import 'package:testapp/utils/firestore.dart';
 import 'package:testapp/utils/theme_provider.dart';
 class Splashscreen extends StatefulWidget {
   const Splashscreen({super.key});
@@ -24,28 +25,7 @@ class _SplashscreenState extends State<Splashscreen> {
   final _firestore = FirebaseFirestore.instance;
 
 
-  Future<String> getUserRole(String uid) async {
 
-  var adminDoc = await _firestore.collection('users').doc(uid).get();
-  if (adminDoc.exists) {
-  return "ADMIN";
-  }
-
-  var admins = await _firestore.collection('users').get();
-  for (var admin in admins.docs) {
-  var teacherDoc = await _firestore
-      .collection('users')
-      .doc(admin.id)
-      .collection('teachers')
-      .doc(uid)
-      .get();
-  if (teacherDoc.exists) {
-  return "STAFF";
-  }
-  }
-
-  return "STUDENT";
-  }
 
 
 
@@ -58,7 +38,7 @@ class _SplashscreenState extends State<Splashscreen> {
 
 
     if(_user != null){
-      String user = await getUserRole(_auth.currentUser!.uid);
+      String user = await FirebaseAuthServices().getUserRole(_auth.currentUser!.uid);
       Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>user=="STUDENT"?ViewAttendanceScreen(studentid: _auth.currentUser!.uid):Adminhomepage(userType: user)));
        }
     else {

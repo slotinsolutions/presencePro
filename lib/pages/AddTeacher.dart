@@ -9,7 +9,8 @@ import 'package:testapp/utils/constants.dart';
 import 'package:testapp/utils/firestore.dart';
 import 'package:testapp/utils/theme_provider.dart';
 class AddteacherScreen extends StatefulWidget {
-  const AddteacherScreen({super.key});
+  final String userType;
+  const AddteacherScreen({super.key,required this.userType});
 
   @override
   State<AddteacherScreen> createState() => _AddteacherScreenState();
@@ -26,6 +27,7 @@ class _AddteacherScreenState extends State<AddteacherScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final String usertype = widget.userType;
     final themeProvider = Provider.of<ThemeProvider>(context);
     double w = MediaQuery.of(context).size.width;
 
@@ -61,8 +63,9 @@ class _AddteacherScreenState extends State<AddteacherScreen> {
                         child: Components().InputBox2(subject, Icon(Icons.format_list_numbered_rtl), "Subject",themeProvider.themeColor,themeProvider.textColor)),
                   ],
                 ),
+
                 SizedBox(height: 15,),
-                Components().InputBox2(adminPassword, Icon(Icons.lock), "Enter Admin Password",themeProvider.themeColor,themeProvider.textColor),
+                Components().InputBox2(adminPassword, Icon(Icons.lock), "Enter $usertype Password",themeProvider.themeColor,themeProvider.textColor),
 
                 SizedBox(height: 30,),
                 Center(
@@ -77,9 +80,26 @@ class _AddteacherScreenState extends State<AddteacherScreen> {
                             Fluttertoast.showToast(msg: "All Fields are Required", toastLength: Toast.LENGTH_SHORT);
 
                           }
-                          String result = await Firebase_Firestore().addTeacher(_auth.currentUser!.uid, email.text, password.text, name.text,subject.text,adminPassword.text);
-                          Fluttertoast.showToast(msg: result, toastLength: Toast.LENGTH_SHORT);
+                          if(widget.userType=="OWNER") {
+                            String result = await Firebase_Firestore()
+                                .addTeacherAsOwner(
+                                _auth.currentUser!.uid, email.text,
+                                password.text, name.text, subject.text,
+                                adminPassword.text);
+                            Fluttertoast.showToast(msg: result, toastLength: Toast.LENGTH_SHORT);
 
+
+                          }
+                          else if(widget.userType=="ADMIN"){
+                            String result = await Firebase_Firestore()
+                                .addTeacherAsAdmin(
+                                _auth.currentUser!.uid, email.text,
+                                password.text, name.text, subject.text,
+                                adminPassword.text);
+                            Fluttertoast.showToast(msg: result, toastLength: Toast.LENGTH_SHORT);
+
+
+                          }
 
                           Navigator.pop(context);
                         },
