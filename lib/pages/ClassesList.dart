@@ -21,10 +21,11 @@ class ClassListScreen extends StatefulWidget {
 
 class _ClassListScreenState extends State<ClassListScreen> {
   TextEditingController classname = TextEditingController();
-  TextEditingController classTeacherName = TextEditingController();
+  //TextEditingController classTeacherName = TextEditingController();
   GlobalKey<ScaffoldState> _drawerkey = GlobalKey();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   String? adminId;
+  String? ownerIdifAdmin;
   String? selectedTeacher;
   List<String> teachersList = [];
 
@@ -33,16 +34,23 @@ class _ClassListScreenState extends State<ClassListScreen> {
     super.initState();
     fetchClasses();
     fetchAdminId();
+    fetchownerifforAdmin();
   }
 
+  Future<void> fetchownerifforAdmin()async{
+    String? fetchedownerid = await Firebase_Firestore().getOwnerIdForAdmin(_auth.currentUser!.uid);
+    setState(() {
+      ownerIdifAdmin = fetchedownerid;
+    });
+  }
 
   Future<void> fetchClasses() async {
-    String adminId = FirebaseAuth.instance.currentUser!.uid; // Get Admin ID
+    String ownerId = FirebaseAuth.instance.currentUser!.uid; // Get Admin ID
 
     try {
       QuerySnapshot snapshot = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(adminId)
+          .collection('owners')
+          .doc(widget.userType=="OWNER"?ownerId:ownerIdifAdmin)
           .collection('teachers')
           .get();
 
@@ -65,97 +73,92 @@ class _ClassListScreenState extends State<ClassListScreen> {
     });
   }
 
-  void showCustomDialog(BuildContext context){
+
+
+  void showCustomDialog(BuildContext context) async {
+    await fetchClasses(); // Ensure the list is updated before showing dialog
+
     showDialog(
-        context: context,
-        builder: (BuildContext context){
-          final themeProvider = Provider.of<ThemeProvider>(context);
+      context: context,
+      builder: (BuildContext context) {
+        final themeProvider = Provider.of<ThemeProvider>(context);
 
-          return Dialog(
-            backgroundColor: themeProvider.themeColor,
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+        return Dialog(
+          backgroundColor: themeProvider.themeColor,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+          child: Padding(
+            padding: EdgeInsets.all(16),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text("  Enter Class Details", style: TextStyle(fontSize: 30, color: AppColors.primary, fontWeight: FontWeight.w500)),
+                SizedBox(height: 20),
+                Components().InputBox2(classname, Icon(Icons.menu_book), "Class Name", themeProvider.themeColor, themeProvider.textColor),
+                SizedBox(height: 15),
 
-            ),
-            child: Padding(
-              padding: EdgeInsets.all(16),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text("  Enter Class Details",style: TextStyle(fontSize: 30,color: AppColors.primary,fontWeight: FontWeight.w500),),
-                  SizedBox(height: 20,),
-
-                  Components().InputBox2(classname, Icon(Icons.menu_book), "Class Name",themeProvider.themeColor,themeProvider.textColor),
-                  SizedBox(height: 15,),
-                  Container(
-                    decoration: BoxDecoration(
-                        color: Colors.transparent,
-                        border: Border.all(
-                            color: AppColors.bgColor2
-                        ),
-                        borderRadius: BorderRadius.circular(20)
-
-                    ),
-                    child: DropdownButtonFormField(
-                      value: selectedTeacher,
-                      hint: Text("Select Class Teacher",
-                      style: TextStyle(color: themeProvider.textColor),),
-
-                      decoration: InputDecoration(
-
-                        prefixIcon: Icon(Icons.menu_book_rounded,color: AppColors.primary,),
-                        suffixIconColor: AppColors.primary,
-                        filled: true,
-                        fillColor: themeProvider.themeColor,
-
-                        border: OutlineInputBorder(
-                            borderSide: BorderSide.none,
-                            borderRadius: BorderRadius.circular(30)
-                        ),
+                // Check if teacher list is empty before showing dropdown
+                teachersList.isEmpty
+                    ? Center(child: CircularProgressIndicator()) // Show a loader if list is not ready
+                    : Container(
+                  decoration: BoxDecoration(
+                    color: Colors.transparent,
+                    border: Border.all(color: AppColors.bgColor2),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: DropdownButtonFormField(
+                    value: selectedTeacher,
+                    hint: Text("Select Class Teacher", style: TextStyle(color: themeProvider.textColor)),
+                    decoration: InputDecoration(
+                      prefixIcon: Icon(Icons.menu_book_rounded, color: AppColors.primary),
+                      filled: true,
+                      fillColor: themeProvider.themeColor,
+                      border: OutlineInputBorder(
+                        borderSide: BorderSide.none,
+                        borderRadius: BorderRadius.circular(30),
                       ),
-                      items: teachersList.map((String teacherName){
-                        return DropdownMenuItem(
+                    ),
+                    items: teachersList.map((String teacherName) {
+                      return DropdownMenuItem(
+                        value: teacherName,
+                        child: Text(teacherName),
+                      );
+                    }).toList(),
+                    onChanged: (String? newValue) {
+                      setState(() {
+                        selectedTeacher = newValue;
+                      });
+                    },
+                    dropdownColor: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                ),
+                SizedBox(height: 30),
 
-
-
-                            value: teacherName,
-
-
-                            child: Text(teacherName));
-                      }).toList(),
-                      onChanged: (String? newValue){
-                        setState(() {
-                          selectedTeacher=newValue;
-                        });
+                Center(
+                  child: SizedBox(
+                    width: 250,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(backgroundColor: AppColors.primary),
+                      onPressed: () {
+                        widget.userType == "OWNER"
+                            ? Firebase_Firestore().createClassAsOwner(_auth.currentUser!.uid, classname.text, selectedTeacher!)
+                            : Firebase_Firestore().createClassAsOwner(ownerIdifAdmin!, classname.text, selectedTeacher!);
+                        Navigator.pop(context);
                       },
-                      dropdownColor: Colors.white,
-                      borderRadius: BorderRadius.circular(20),
-
-
+                      child: Text("Create Class", style: TextStyle(fontSize: 14, color: Colors.white)),
                     ),
                   ),
-                  SizedBox(height: 30,),
-                  Center(
-                    child: SizedBox(
-                        width: 250,
-                      child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primary
-                          ),
-                          onPressed: (){
-                            Firebase_Firestore().createClass(_auth.currentUser!.uid,classname.text, selectedTeacher!);
-                            Navigator.pop(context);
-                          },
-                          child: Text("Create Class",style: TextStyle(fontSize: 14,color: Colors.white),)),
-                    ),
-                  )
-                ],
-              ),
+                )
+              ],
             ),
-          );
-        });
+          ),
+        );
+      },
+    );
   }
 
   @override
@@ -168,7 +171,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
       backgroundColor: themeProvider.themeColor,
 
 
-      floatingActionButton:widget.userType=="ADMIN"?FloatingActionButton(
+      floatingActionButton:widget.userType=="ADMIN"||widget.userType=="OWNER"?FloatingActionButton(
         splashColor: AppColors.primary,
           backgroundColor: AppColors.primary,
           onPressed: (){

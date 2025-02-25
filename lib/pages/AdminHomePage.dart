@@ -40,13 +40,13 @@ class _AdminhomepageState extends State<Adminhomepage> {
     ];
     List<Widget> _widgetList = widget.userType=="OWNER"?[
       ClassListScreen(userType: widget.userType,),
-      const AddstudentScreen(),
+       AddstudentScreen(userType: widget.userType,),
      TeachersScreen(userType: widget.userType,),
       const Admins(),
     ]:
     [
       ClassListScreen(userType: widget.userType,),
-      const AddstudentScreen(),
+       AddstudentScreen(userType: widget.userType,),
       TeachersScreen(userType: widget.userType,),
     ];
     return Scaffold(

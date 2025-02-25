@@ -7,9 +7,12 @@ import 'package:uuid/uuid.dart';
 class Firebase_Firestore{
 
 
-  Future<void> registerStudent({
+
+
+  Future<void> registerStudentAsOwner({
     required BuildContext context,
-    required String adminPassword,
+    required String ownerPassword,
+    required String ownerId,
     required String className,
     required String studentName,
     required String studentEmail,
@@ -22,22 +25,19 @@ class Firebase_Firestore{
       FirebaseAuth auth = FirebaseAuth.instance;
       FirebaseFirestore firestore = FirebaseFirestore.instance;
 
-      // Step 1: Authenticate Admin First
-      User? adminUser = auth.currentUser;
-      if (adminUser == null) {
+      // Step 1: Authenticate Owner
+      User? ownerUser = auth.currentUser;
+      if (ownerUser == null) {
         ScaffoldMessenger.of(context)
-            .showSnackBar(SnackBar(content: Text("Admin not logged in!")));
+            .showSnackBar(SnackBar(content: Text("Owner not logged in!")));
         return;
       }
 
-      // Re-authenticate Admin
       AuthCredential credential = EmailAuthProvider.credential(
-        email: adminUser.email!,
-        password: adminPassword,
+        email: ownerUser.email!,
+        password: ownerPassword,
       );
-      await adminUser.reauthenticateWithCredential(credential);
-
-      String adminId = adminUser.uid;
+      await ownerUser.reauthenticateWithCredential(credential);
 
       // Step 2: Create Student in Firebase Authentication
       UserCredential studentCredential =
@@ -50,8 +50,8 @@ class Firebase_Firestore{
 
       // Step 3: Get Class ID based on class name
       QuerySnapshot classSnapshot = await firestore
-          .collection('users')
-          .doc(adminId)
+          .collection('owners')
+          .doc(ownerId)
           .collection('classes')
           .where('className', isEqualTo: className)
           .limit(1)
@@ -67,8 +67,8 @@ class Firebase_Firestore{
 
       // Step 4: Store Student Data in Firestore
       await firestore
-          .collection('users')
-          .doc(adminId)
+          .collection('owners')
+          .doc(ownerId)
           .collection('classes')
           .doc(classId)
           .collection('students')
@@ -80,21 +80,22 @@ class Firebase_Firestore{
         'rfidTagId': rfidTagId,
         'beaconId': beaconId,
         'timestamp': FieldValue.serverTimestamp(),
-        'studentId':studentId
+        'studentId': studentId,
       });
 
-      // Step 5: Re-login Admin
+      // Step 5: Re-login Owner
       await auth.signOut();
       await auth.signInWithEmailAndPassword(
-          email: adminUser.email!, password: adminPassword);
+          email: ownerUser.email!, password: ownerPassword);
 
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Student Registered Successfully!')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Student Registered Successfully!')));
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${e.toString()}')));
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text('Error: ${e.toString()}')));
     }
   }
+
 
   Future<String?> getAdminIdForCurrentTeacher() async {
     String teacherId = FirebaseAuth.instance.currentUser!.uid; // Get current teacher's UID
@@ -297,15 +298,16 @@ class Firebase_Firestore{
     }
   }
 
-  Future<void> createClass(String adminId, String className, String classTeacher) async {
+
+
+  Future<void> createClassAsOwner(String ownerId, String className, String classTeacher) async {
     try {
-       CollectionReference classesRef = FirebaseFirestore.instance
-          .collection("users")
-          .doc(adminId)
+      CollectionReference classesRef = FirebaseFirestore.instance
+          .collection("owners")
+          .doc(ownerId)
           .collection("classes");
 
       String classId = Uuid().v4();
-
 
       await classesRef.doc(classId).set({
         "className": className,

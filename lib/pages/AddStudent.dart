@@ -10,7 +10,8 @@ import 'package:testapp/utils/firestore.dart';
 import 'package:testapp/utils/theme_provider.dart';
 
 class AddstudentScreen extends StatefulWidget {
-  const AddstudentScreen({super.key});
+  String? userType;
+   AddstudentScreen({super.key,required this.userType});
 
   @override
   State<AddstudentScreen> createState() => _AddstudentScreenState();
@@ -18,14 +19,16 @@ class AddstudentScreen extends StatefulWidget {
 
 class _AddstudentScreenState extends State<AddstudentScreen> {
    String? selectedCLass;
-  TextEditingController name = TextEditingController();
+   final FirebaseAuth _auth = FirebaseAuth.instance;
+
+   TextEditingController name = TextEditingController();
   TextEditingController email = TextEditingController();
   TextEditingController password= TextEditingController();
   TextEditingController rollno= TextEditingController();
   TextEditingController rfidID= TextEditingController();
   TextEditingController beaconID= TextEditingController();
    TextEditingController adminPassword= TextEditingController();
-
+   String? ownerIdIfadmin;
    String? selectedClass;
    List<String> classList = [];
 
@@ -33,6 +36,13 @@ class _AddstudentScreenState extends State<AddstudentScreen> {
    void initState() {
    super.initState();
    fetchClasses();
+   fetchownerifforadmin();
+   }
+   Future<void> fetchownerifforadmin()async{
+     String? fetchedownerid = await Firebase_Firestore().getOwnerIdForAdmin(_auth.currentUser!.uid);
+     setState(() {
+       ownerIdIfadmin = fetchedownerid;
+     });
    }
 
 
@@ -61,6 +71,7 @@ class _AddstudentScreenState extends State<AddstudentScreen> {
 
   @override
   Widget build(BuildContext context) {
+     String? usertype = widget.userType;
     final themeProvider = Provider.of<ThemeProvider>(context);
     double w = MediaQuery.of(context).size.width;
     return Scaffold(
@@ -144,7 +155,7 @@ class _AddstudentScreenState extends State<AddstudentScreen> {
                 SizedBox(height: 15,),
                 Components().InputBox2(beaconID, Icon(Icons.bluetooth_audio), "Beacon ID",themeProvider.themeColor,themeProvider.textColor),
                 SizedBox(height: 15,),
-                Components().InputBox2(adminPassword, Icon(Icons.lock), "Enter Admin Password",themeProvider.themeColor,themeProvider.textColor),
+                Components().InputBox2(adminPassword, Icon(Icons.lock), "Enter $usertype Password",themeProvider.themeColor,themeProvider.textColor),
 
                 SizedBox(height: 30,),
                 Center(
@@ -155,7 +166,30 @@ class _AddstudentScreenState extends State<AddstudentScreen> {
                         backgroundColor: AppColors.primary
                       ),
                         onPressed: ()async{
-                        await Firebase_Firestore().registerStudent(context: context, adminPassword: adminPassword.text, className: selectedCLass!, studentName: name.text, studentEmail: email.text, studentPassword: password.text, rollNumber: rollno.text, rfidTagId: rfidID.text, beaconId: beaconID.text);
+                        widget.userType=="OWNER"?
+
+                        await Firebase_Firestore().registerStudentAsOwner(
+                            context: context,
+                            ownerPassword: adminPassword.text,
+                            ownerId: _auth.currentUser!.uid,
+                            className: selectedCLass!,
+                            studentName: name.text,
+                            studentEmail: email.text,
+                            studentPassword: password.text,
+                            rollNumber: rollno.text,
+                            rfidTagId: rfidID.text,
+                            beaconId: beaconID.text):
+                        await Firebase_Firestore().registerStudentAsOwner(
+                            context: context,
+                            ownerPassword: adminPassword.text,
+                            ownerId: ownerIdIfadmin!,
+                            className: selectedCLass!,
+                            studentName: name.text,
+                            studentEmail: email.text,
+                            studentPassword: password.text,
+                            rollNumber: rollno.text,
+                            rfidTagId: rfidID.text,
+                            beaconId: beaconID.text) ;
                         setState(() {
                           name.clear();
                           email.clear();
