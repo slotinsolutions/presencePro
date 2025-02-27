@@ -10,8 +10,8 @@ class StudentList extends StatefulWidget {
   final String className;
   final String userType;
  final String clasID;
- final String adminId;
-   StudentList({super.key,required this.className,required this.userType,required this.clasID,required this.adminId});
+ final String ownerId;
+   StudentList({super.key,required this.className,required this.userType,required this.clasID,required this.ownerId});
 
   @override
   State<StudentList> createState() => _StudentListState();
@@ -32,8 +32,8 @@ class _StudentListState extends State<StudentList> {
       child: StreamBuilder<QuerySnapshot>(
 
     stream: FirebaseFirestore.instance
-        .collection('users')
-        .doc(widget.adminId)
+        .collection('owners')
+        .doc(widget.ownerId)
         .collection('classes')
     .doc(widget.clasID)
     .collection('students')
@@ -57,7 +57,7 @@ class _StudentListState extends State<StudentList> {
               elevation: 5,
               child: ListTile(
                 onLongPress: () {
-                  if (widget.userType == "ADMIN") {
+                  if (widget.userType == "ADMIN"||widget.userType=="OWNER") {
                     showDialog(context: context,
                         builder: (BuildContext context) {
                           return Components().dialog(

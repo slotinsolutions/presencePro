@@ -42,7 +42,7 @@ class _AdminhomepageState extends State<Adminhomepage> {
       ClassListScreen(userType: widget.userType,),
        AddstudentScreen(userType: widget.userType,),
      TeachersScreen(userType: widget.userType,),
-      const Admins(),
+      Admins(userType: widget.userType,),
     ]:
     [
       ClassListScreen(userType: widget.userType,),

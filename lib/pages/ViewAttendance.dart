@@ -37,10 +37,10 @@ class _ViewAttendanceScreenState extends State<ViewAttendanceScreen> with Single
 
 
     try {
-      QuerySnapshot adminsSnapshot = await FirebaseFirestore.instance.collection('users').get();
+      QuerySnapshot ownersSnapshot = await FirebaseFirestore.instance.collection('owners').get();
 
-      for (var admin in adminsSnapshot.docs) {
-        QuerySnapshot classesSnapshot = await admin.reference.collection('classes').get();
+      for (var owner in ownersSnapshot.docs) {
+        QuerySnapshot classesSnapshot = await owner.reference.collection('classes').get();
 
         for (var classDoc in classesSnapshot.docs) {
           DocumentSnapshot studentDoc =

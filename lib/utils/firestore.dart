@@ -97,32 +97,7 @@ class Firebase_Firestore{
   }
 
 
-  Future<String?> getAdminIdForCurrentTeacher() async {
-    String teacherId = FirebaseAuth.instance.currentUser!.uid; // Get current teacher's UID
-
-     QuerySnapshot querySnapshot = await FirebaseFirestore.instance
-        .collection('users')
-        .where('role', isEqualTo: 'ADMIN')
-        .get();
-
-    for (var adminDoc in querySnapshot.docs) {
-      String adminId = adminDoc.id;
-
-       DocumentSnapshot teacherDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(adminId)
-          .collection('teachers')
-          .doc(teacherId)
-          .get();
-
-      if (teacherDoc.exists) {
-        return adminId;
-      }
-    }
-
-    return null;
-  }
-  Future<String> addAdminAsOwner(String name, String email, String adminPass, String ownerPass) async {
+   Future<String> addAdminAsOwner(String name, String email, String adminPass, String ownerPass) async {
     try {
       FirebaseAuth auth = FirebaseAuth.instance;
       User? currentOwner = auth.currentUser;
@@ -306,6 +281,16 @@ class Firebase_Firestore{
           .collection("owners")
           .doc(ownerId)
           .collection("classes");
+
+      // Check if a class with the same name already exists
+      QuerySnapshot existingClasses = await classesRef
+          .where("className", isEqualTo: className)
+          .get();
+
+      if (existingClasses.docs.isNotEmpty) {
+        Fluttertoast.showToast(msg: "Class with this name already exists!");
+        return; // Stop execution if class already exists
+      }
 
       String classId = Uuid().v4();
 

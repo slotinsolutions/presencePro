@@ -24,7 +24,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
   //TextEditingController classTeacherName = TextEditingController();
   GlobalKey<ScaffoldState> _drawerkey = GlobalKey();
   final FirebaseAuth _auth = FirebaseAuth.instance;
-  String? adminId;
+  String? instituteName;
   String? ownerIdifAdmin;
   String? selectedTeacher;
   List<String> teachersList = [];
@@ -32,11 +32,29 @@ class _ClassListScreenState extends State<ClassListScreen> {
   @override
   void initState() {
     super.initState();
-    fetchClasses();
-    fetchAdminId();
     fetchownerifforAdmin();
-  }
 
+    fetchClasses();
+    fetchInstituteName();
+
+
+  }
+  Future<void> fetchInstituteName()async{
+    try{
+  DocumentSnapshot docSnapshot= await FirebaseFirestore.instance.collection('owners').doc(widget.userType=="OWNER"?_auth.currentUser!.uid:ownerIdifAdmin).get();
+  if (docSnapshot.exists) {
+
+    instituteName= docSnapshot["instituteName"];
+
+  } else {
+    print("Owner not found.");
+    return null;
+  }
+  } catch (e) {
+  print("Error fetching institute name: $e");
+  return null;
+  }
+}
   Future<void> fetchownerifforAdmin()async{
     String? fetchedownerid = await Firebase_Firestore().getOwnerIdForAdmin(_auth.currentUser!.uid);
     setState(() {
@@ -65,13 +83,6 @@ class _ClassListScreenState extends State<ClassListScreen> {
   }
 
 
-
-  Future<void> fetchAdminId() async{
-    String? fetchedAdminId = await Firebase_Firestore().getAdminIdForCurrentTeacher();
-    setState(() {
-      adminId = fetchedAdminId;
-    });
-  }
 
 
 
@@ -187,7 +198,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
         shape:const RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(bottom:Radius.circular(30) )
         ),
-        title:  Text("Presence Pro",style: TextStyle(color: Colors.white,fontSize: 30,fontWeight: FontWeight.w500),),
+        title:  Text("$instituteName",style: TextStyle(color: Colors.white,fontSize: 30,fontWeight: FontWeight.w500),),
 
         leading: IconButton(onPressed: (){
           _drawerkey.currentState?.openDrawer();
@@ -247,8 +258,8 @@ class _ClassListScreenState extends State<ClassListScreen> {
               child:StreamBuilder (
 
     stream:  FirebaseFirestore.instance
-        .collection("users")
-        .doc(widget.userType=="ADMIN"?_auth.currentUser!.uid:adminId)
+        .collection("owners")
+        .doc(widget.userType=="OWNER"?_auth.currentUser!.uid:ownerIdifAdmin)
         .collection("classes")
         .orderBy("createdAt", descending: true)
         .snapshots(),
@@ -275,7 +286,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
                   Navigator.push(context, MaterialPageRoute(
                       builder: (context) =>
                           StudentList(className: classData['className'],
-                            userType: widget.userType,clasID: classData["classId"],adminId: widget.userType=="ADMIN"?_auth.currentUser!.uid:adminId!,)));
+                            userType: widget.userType,clasID: classData["classId"],ownerId: widget.userType=="OWNER"?_auth.currentUser!.uid:ownerIdifAdmin!,)));
                 },
 
                 title: Text(classData["className"], style: TextStyle(

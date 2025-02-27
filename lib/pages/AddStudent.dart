@@ -28,15 +28,16 @@ class _AddstudentScreenState extends State<AddstudentScreen> {
   TextEditingController rfidID= TextEditingController();
   TextEditingController beaconID= TextEditingController();
    TextEditingController adminPassword= TextEditingController();
-   String? ownerIdIfadmin;
-   String? selectedClass;
+String? ownerIdIfadmin;
+
    List<String> classList = [];
 
    @override
    void initState() {
    super.initState();
+
    fetchClasses();
-   fetchownerifforadmin();
+
    }
    Future<void> fetchownerifforadmin()async{
      String? fetchedownerid = await Firebase_Firestore().getOwnerIdForAdmin(_auth.currentUser!.uid);
@@ -47,12 +48,13 @@ class _AddstudentScreenState extends State<AddstudentScreen> {
 
 
    Future<void> fetchClasses() async {
-   String adminId = FirebaseAuth.instance.currentUser!.uid; // Get Admin ID
+   await fetchownerifforadmin();
+
 
    try {
    QuerySnapshot snapshot = await FirebaseFirestore.instance
-       .collection('users')
-       .doc(adminId)
+       .collection('owners')
+       .doc(widget.userType=="OWNER"?_auth.currentUser!.uid:ownerIdIfadmin)
        .collection('classes')
        .get();
 
@@ -198,7 +200,7 @@ class _AddstudentScreenState extends State<AddstudentScreen> {
                           rfidID.clear();
                           beaconID.clear();
                           adminPassword.clear();
-                          selectedCLass=null;
+
 
                         });
 

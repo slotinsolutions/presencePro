@@ -6,6 +6,7 @@ import 'package:testapp/pages/AddTeacher.dart';
 import 'package:testapp/utils/colors.dart';
 import 'package:testapp/utils/components.dart';
 import 'package:testapp/utils/constants.dart';
+import 'package:testapp/utils/firestore.dart';
 import 'package:testapp/utils/theme_provider.dart';
 class TeachersScreen extends StatefulWidget {
   final String userType;
@@ -17,6 +18,21 @@ class TeachersScreen extends StatefulWidget {
 
 class _TeachersScreenState extends State<TeachersScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  String? ownerIdIfadmin;
+
+  @override
+  void initState() {
+    super.initState();
+
+    fetchownerifforadmin();
+
+  }
+  Future<void> fetchownerifforadmin()async{
+    String? fetchedownerid = await Firebase_Firestore().getOwnerIdForAdmin(_auth.currentUser!.uid);
+    setState(() {
+      ownerIdIfadmin = fetchedownerid;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,8 +52,8 @@ class _TeachersScreenState extends State<TeachersScreen> {
           padding: EdgeInsets.all(8),
           child:StreamBuilder<QuerySnapshot>(
             stream: FirebaseFirestore.instance
-                .collection('users')
-                .doc(_auth.currentUser!.uid)
+                .collection('owners')
+                .doc(widget.userType=="OWNER"?_auth.currentUser!.uid:ownerIdIfadmin)
                 .collection('teachers')
                 .snapshots(),
             builder: (context, snapshot) {
