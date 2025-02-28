@@ -39,7 +39,7 @@ class _SplashscreenState extends State<Splashscreen> {
 
     if(_user != null){
       String user = await FirebaseAuthServices().getUserRole(_auth.currentUser!.uid);
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>user=="STUDENT"?ViewAttendanceScreen(studentid: _auth.currentUser!.uid):Adminhomepage(userType: user)));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>user=="STUDENT"?ViewAttendanceScreen(studentid: _auth.currentUser!.uid,userType: "STUDENT",):Adminhomepage(userType: user)));
        }
     else {
       Navigator.of(context).pushReplacement(MaterialPageRoute(

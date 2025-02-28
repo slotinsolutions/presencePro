@@ -42,7 +42,7 @@ class FirebaseAuthServices {
 
       Fluttertoast.showToast(msg: "Logged in Successfully",
           fontSize: 18);
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>actualRole=="STUDENT"?ViewAttendanceScreen(studentid: uid,):Adminhomepage(userType:selectedRole)));
+      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>actualRole=="STUDENT"?ViewAttendanceScreen(studentid: uid,userType: selectedRole,):Adminhomepage(userType:selectedRole)));
 
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Login Failed: $e")));

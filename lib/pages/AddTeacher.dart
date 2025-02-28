@@ -101,7 +101,7 @@ class _AddteacherScreenState extends State<AddteacherScreen> {
 
                           }
 
-                          Navigator.pop(context);
+                          Navigator.pop(context,true);
                         },
                         child: Text("Register Teacher",style: TextStyle(fontSize: 14,color:themeProvider.themeColor),)),
 

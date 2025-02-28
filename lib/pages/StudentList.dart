@@ -68,7 +68,7 @@ class _StudentListState extends State<StudentList> {
                 },
                 onTap: () {
                   Navigator.push(context, MaterialPageRoute(
-                      builder: (context) => ViewAttendanceScreen(studentid: student['studentId'],)));
+                      builder: (context) => ViewAttendanceScreen(studentid: student['studentId'],userType: widget.userType,)));
                 },
                 title: Text(student['studentName'], style: TextStyle(fontSize: 16,
                     fontWeight: FontWeight.bold,

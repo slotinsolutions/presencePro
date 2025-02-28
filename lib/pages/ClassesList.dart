@@ -26,35 +26,57 @@ class _ClassListScreenState extends State<ClassListScreen> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   String? instituteName;
   String? ownerIdifAdmin;
+  String? ownerIdifteacher;
   String? selectedTeacher;
   List<String> teachersList = [];
 
   @override
   void initState() {
     super.initState();
-    fetchownerifforAdmin();
-
-    fetchClasses();
+    fetchTeachers();
     fetchInstituteName();
-
-
+    fetchownerifforTeacher();
+    fetchownerifforAdmin();
   }
-  Future<void> fetchInstituteName()async{
-    try{
-  DocumentSnapshot docSnapshot= await FirebaseFirestore.instance.collection('owners').doc(widget.userType=="OWNER"?_auth.currentUser!.uid:ownerIdifAdmin).get();
-  if (docSnapshot.exists) {
+  Future<void> fetchInstituteName() async {
+    if (widget.userType == "OWNER") {
+      ownerIdifAdmin = _auth.currentUser!.uid; // Set ownerId directly for owner
+    } else if (widget.userType == "ADMIN") {
+      await fetchownerifforAdmin();
+    } else if (widget.userType == "STAFF") {
+      await fetchownerifforTeacher();
+    }
 
-    instituteName= docSnapshot["instituteName"];
+    if (ownerIdifAdmin == null && widget.userType == "ADMIN") {
+      print("Owner ID for admin is null");
+      return;
+    }
 
-  } else {
-    print("Owner not found.");
-    return null;
+    if (ownerIdifteacher == null && widget.userType == "STAFF") {
+      print("Owner ID for teacher is null");
+      return;
+    }
+
+    try {
+      DocumentSnapshot docSnapshot = await FirebaseFirestore.instance
+          .collection('owners')
+          .doc(widget.userType == "OWNER"
+          ? _auth.currentUser!.uid
+          : (widget.userType == "ADMIN" ? ownerIdifAdmin : ownerIdifteacher))
+          .get();
+
+      if (docSnapshot.exists) {
+        setState(() {
+          instituteName = docSnapshot["instituteName"];
+        });
+      } else {
+        print("Owner not found.");
+      }
+    } catch (e) {
+      print("Error fetching institute name: $e");
+    }
   }
-  } catch (e) {
-  print("Error fetching institute name: $e");
-  return null;
-  }
-}
+
   Future<void> fetchownerifforAdmin()async{
     String? fetchedownerid = await Firebase_Firestore().getOwnerIdForAdmin(_auth.currentUser!.uid);
     setState(() {
@@ -62,7 +84,14 @@ class _ClassListScreenState extends State<ClassListScreen> {
     });
   }
 
-  Future<void> fetchClasses() async {
+  Future<void> fetchownerifforTeacher()async{
+    String? fetchedownerid = await Firebase_Firestore().getOwnerIdForteacher(_auth.currentUser!.uid);
+    setState(() {
+      ownerIdifteacher = fetchedownerid;
+    });
+  }
+
+  Future<void> fetchTeachers() async {
     String ownerId = FirebaseAuth.instance.currentUser!.uid; // Get Admin ID
 
     try {
@@ -87,7 +116,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
 
 
   void showCustomDialog(BuildContext context) async {
-    await fetchClasses(); // Ensure the list is updated before showing dialog
+    await fetchTeachers(); // Ensure the list is updated before showing dialog
 
     showDialog(
       context: context,
@@ -259,7 +288,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
 
     stream:  FirebaseFirestore.instance
         .collection("owners")
-        .doc(widget.userType=="OWNER"?_auth.currentUser!.uid:ownerIdifAdmin)
+        .doc(widget.userType=="OWNER"?_auth.currentUser!.uid:(widget.userType=="ADMIN"?ownerIdifAdmin:ownerIdifteacher))
         .collection("classes")
         .orderBy("createdAt", descending: true)
         .snapshots(),
@@ -286,7 +315,7 @@ class _ClassListScreenState extends State<ClassListScreen> {
                   Navigator.push(context, MaterialPageRoute(
                       builder: (context) =>
                           StudentList(className: classData['className'],
-                            userType: widget.userType,clasID: classData["classId"],ownerId: widget.userType=="OWNER"?_auth.currentUser!.uid:ownerIdifAdmin!,)));
+                            userType: widget.userType,clasID: classData["classId"],ownerId: widget.userType=="OWNER"?_auth.currentUser!.uid:(widget.userType=="ADMIN"?ownerIdifAdmin!:ownerIdifteacher!))));
                 },
 
                 title: Text(classData["className"], style: TextStyle(

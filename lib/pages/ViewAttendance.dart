@@ -11,7 +11,8 @@ import 'package:testapp/pages/MonthlyAttendance.dart';
 import 'package:testapp/utils/theme_provider.dart';
 class ViewAttendanceScreen extends StatefulWidget {
   final String studentid;
-  const ViewAttendanceScreen({super.key,required this.studentid});
+  String? userType;
+ ViewAttendanceScreen({super.key,required this.studentid,required this.userType});
 
   @override
   State<ViewAttendanceScreen> createState() => _ViewAttendanceScreenState();
@@ -19,20 +20,42 @@ class ViewAttendanceScreen extends StatefulWidget {
 
 class _ViewAttendanceScreenState extends State<ViewAttendanceScreen> with SingleTickerProviderStateMixin{
   late TabController _tabController;
+  String? ownerid;
   Map<String, dynamic>? studentData;
   bool isLoading = true;
   GlobalKey<ScaffoldState> _drawerkey = GlobalKey();
-
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  String? instituteName;
 
 
   @override
   void initState() {
     super.initState();
-    fetchStudentData(widget.studentid);
+
+    fetchInstituteName();
 
     _tabController = TabController(length: 3, vsync: this);
   }
 
+  Future<void> fetchInstituteName() async {
+    await fetchStudentData(widget.studentid);
+    try {
+      DocumentSnapshot docSnapshot = await FirebaseFirestore.instance
+          .collection('owners')
+          .doc(ownerid)
+          .get();
+
+      if (docSnapshot.exists) {
+        setState(() {
+          instituteName = docSnapshot["instituteName"];
+        });
+      } else {
+        print("Owner not found.");
+      }
+    } catch (e) {
+      print("Error fetching institute name: $e");
+    }
+  }
   Future<void> fetchStudentData(String studentId) async {
 
 
@@ -49,6 +72,7 @@ class _ViewAttendanceScreenState extends State<ViewAttendanceScreen> with Single
           if (studentDoc.exists) {
             setState(() {
               studentData = studentDoc.data() as Map<String, dynamic>;
+              ownerid = owner.id;
               isLoading = false;
             });
             return;
@@ -95,7 +119,7 @@ class _ViewAttendanceScreenState extends State<ViewAttendanceScreen> with Single
         shape:const RoundedRectangleBorder(
             borderRadius: BorderRadius.vertical(bottom:Radius.circular(30) )
         ),
-        title:  Text("Presence Pro",style: TextStyle(color: Colors.white,fontSize: 30,fontWeight: FontWeight.w500),),
+        title:  Text("$instituteName",style: TextStyle(color: Colors.white,fontSize: 30,fontWeight: FontWeight.w500),),
 
         leading: IconButton(onPressed: (){
           _drawerkey.currentState?.openDrawer();
@@ -123,7 +147,7 @@ class _ViewAttendanceScreenState extends State<ViewAttendanceScreen> with Single
                        Column(
                          crossAxisAlignment: CrossAxisAlignment.start,
                          children: [
-                           Text("Welcome,",style: TextStyle(fontSize: 25,color: themeProvider.textColor),),
+                           widget.userType=="STUDENT"?Text("Welcome,",style: TextStyle(fontSize: 25,color: themeProvider.textColor),):SizedBox(),
                            Text(studentData?['studentName'],softWrap:true,
                                overflow: TextOverflow.visible,
 

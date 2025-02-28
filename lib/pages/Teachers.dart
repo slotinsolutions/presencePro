@@ -43,8 +43,14 @@ class _TeachersScreenState extends State<TeachersScreen> {
         floatingActionButton:FloatingActionButton(
           splashColor: AppColors.primary,
           backgroundColor: AppColors.primary,
-          onPressed: (){
-           Navigator.push(context, MaterialPageRoute(builder: (context)=>AddteacherScreen(userType:widget.userType)));
+          onPressed: ()async{
+            bool result =
+           await Navigator.push(context, MaterialPageRoute(builder: (context)=>AddteacherScreen(userType:widget.userType)));
+         if(result){
+           setState(() {
+
+           });
+        }
           },
           child: Icon(Icons.add,color: Colors.white,),),
 

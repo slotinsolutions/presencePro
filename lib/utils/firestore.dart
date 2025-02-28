@@ -219,6 +219,29 @@ class Firebase_Firestore{
     return null; // Return null if ownerId is not found
   }
 
+  Future<String?> getOwnerIdForteacher(String teacherId) async {
+    try {
+      QuerySnapshot owners = await FirebaseFirestore.instance.collection("owners").get();
+
+      for (var owner in owners.docs) {
+        DocumentSnapshot teacherDoc = await FirebaseFirestore.instance
+            .collection("owners")
+            .doc(owner.id)
+            .collection("teachers")
+            .doc(teacherId)
+            .get();
+
+        if (teacherDoc.exists) {
+          return owner.id; // Return the ownerId
+        }
+      }
+    } catch (e) {
+      print("Error fetching ownerId: $e");
+    }
+    return null; // Return null if ownerId is not found
+  }
+
+
   Future<String> addTeacherAsAdmin(
       String adminId, String email, String password, String name, String subject, String adminPass) async {
     try {

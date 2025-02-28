@@ -27,8 +27,15 @@ Widget build(BuildContext context) {
       floatingActionButton:FloatingActionButton(
         splashColor: AppColors.primary,
         backgroundColor: AppColors.primary,
-        onPressed: (){
+        onPressed: ()async{
+          bool result = await
           Navigator.push(context, MaterialPageRoute(builder: (context)=>Addadmin()));
+       if(result){
+         setState(() {
+
+         });
+       }
+
         },
         child: Icon(Icons.add,color: Colors.white,),),
 

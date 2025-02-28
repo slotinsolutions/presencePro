@@ -61,7 +61,7 @@ class _AddadminState extends State<Addadmin> {
 
 
                           Fluttertoast.showToast(msg: result, toastLength: Toast.LENGTH_SHORT);
-                          Navigator.pop(context);
+                          Navigator.pop(context,true);
 
                         },
                         child: Text("Register Admin",style: TextStyle(fontSize: 14,color:themeProvider.themeColor),)),
