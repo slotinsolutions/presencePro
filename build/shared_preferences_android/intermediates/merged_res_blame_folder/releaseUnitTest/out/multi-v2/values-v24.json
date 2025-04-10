@@ -1,0 +1,19 @@
+{
+    "logs": [
+        {
+            "outputFile": "io.flutter.plugins.sharedpreferences.test.shared_preferences_android-mergeReleaseUnitTestResources-37:/values-v24/values-v24.xml",
+            "map": [
+                {
+                    "source": "C:\\Users\\aakas\\.gradle\\caches\\transforms-3\\2631588813d9103aea45f7bbd7156b86\\transformed\\appcompat-1.1.0\\res\\values-v24\\values-v24.xml",
+                    "from": {
+                        "startLines": "2,3",
+                        "startColumns": "4,4",
+                        "startOffsets": "55,212",
+                        "endColumns": "156,134",
+                        "endOffsets": "207,342"
+                    }
+                }
+            ]
+        }
+    ]
+}

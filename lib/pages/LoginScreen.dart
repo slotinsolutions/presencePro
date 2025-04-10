@@ -11,9 +11,10 @@ import 'package:testapp/utils/colors.dart';
 import 'package:testapp/pages/ForgetPasswordPage.dart';
 import 'package:testapp/utils/components.dart';
 import 'package:testapp/utils/theme_provider.dart';
+
 class loginScreen extends StatefulWidget {
   final String userType;
-   loginScreen({super.key,required this.userType});
+  loginScreen({super.key,required this.userType});
 
   @override
   State<loginScreen> createState() => _loginScreenState();
@@ -23,9 +24,23 @@ class _loginScreenState extends State<loginScreen> {
   final _auth = FirebaseAuthServices();
   TextEditingController email = TextEditingController();
   TextEditingController pass = TextEditingController();
+  bool isLoading = false; //Loader
 
+  void _login() async {
+    setState(() {
+      isLoading = true; // Show loader
+    });
 
+    try {
+      await _auth.loginUser(context, email.text, pass.text, widget.userType);
+    } catch (e) {
+      Fluttertoast.showToast(msg: "Login Failed: ${e.toString()}");
+    }
 
+    setState(() {
+      isLoading = false; // Hide loader after login process
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,13 +51,10 @@ class _loginScreenState extends State<loginScreen> {
       body: Container(
         padding: EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
-          gradient: LinearGradient(colors: [
-            AppColors.bgColor2,
-            AppColors.bgColor,
-
-          ],
+          gradient: LinearGradient(
+              colors: [AppColors.bgColor2, AppColors.bgColor],
               begin: Alignment.topCenter,
-            end: Alignment.bottomCenter
+              end: Alignment.bottomCenter,
           )
         ),
         child: Column(
@@ -52,14 +64,15 @@ class _loginScreenState extends State<loginScreen> {
             Container(
                width: 600,
               height: 100,
-
               decoration: const BoxDecoration(
                 color: Colors.transparent,
                   image: DecorationImage(
                       image: AssetImage('assets/images/presencepro.png'),
                       fit: BoxFit.fitWidth
                   )
-              ),),
+              ),
+            ),
+
             Container(
               child: Column(
                 children: [
@@ -71,22 +84,24 @@ class _loginScreenState extends State<loginScreen> {
                     width: screenwidth*0.6,
                     child: ElevatedButton(
                         style: ElevatedButton.styleFrom(backgroundColor: AppColors.bgColor2),
-                        onPressed: (){
-                          FirebaseAuthServices().loginUser(context, email.text, pass.text, widget.userType); },
-                        child: Text("Login",style: TextStyle(color: AppColors.white),)),
+                        onPressed: isLoading ? null : _login, // Disable loading
+                      child: isLoading
+                          ? CircularProgressIndicator(color: Colors.white) // Show loader
+                          : Text("Login", style: TextStyle(color: AppColors.white)),
+                    ),
                   ),
                   SizedBox(height: 10,),
                   InkWell(
                     onTap: (){
                       Navigator.push(context, MaterialPageRoute(builder: (context)=>forgetPassScreen(userType: widget.userType,)));
                     },
-                      child: Text('Forget Password?',style: TextStyle(color: AppColors.white,fontSize: 18),
-                      )),
+                      child: Text('Forget Password?',
+                        style: TextStyle(color: AppColors.white,fontSize: 18),
+                      ),
+                  ),
                 ],
               ),
             ),
-
-
 
             widget.userType =="OWNER"?
             Row(

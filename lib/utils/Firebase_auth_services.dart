@@ -40,9 +40,16 @@ class FirebaseAuthServices {
         return;
       }
 
-      Fluttertoast.showToast(msg: "Logged in Successfully",
-          fontSize: 18);
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>actualRole=="STUDENT"?ViewAttendanceScreen(studentid: uid,userType: selectedRole,):Adminhomepage(userType:selectedRole)));
+      Fluttertoast.showToast(msg: "Logged in Successfully", fontSize: 18);
+      Navigator.pushAndRemoveUntil(
+          context,
+          MaterialPageRoute(
+              builder: (context)=>actualRole=="STUDENT"
+                  ?ViewAttendanceScreen(studentid: uid,userType: selectedRole)
+                  :Adminhomepage(userType:selectedRole),
+          ),
+          (route) => false,
+      );
 
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Login Failed: $e")));

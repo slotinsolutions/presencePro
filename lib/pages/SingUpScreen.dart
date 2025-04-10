@@ -20,33 +20,52 @@ class signUpScreen extends StatefulWidget {
 
 class _signUpScreenState extends State<signUpScreen> {
   final FirebaseAuthServices _auth = FirebaseAuthServices();
+
   TextEditingController email = TextEditingController();
-
   TextEditingController instituteName= TextEditingController();
-
   TextEditingController pass = TextEditingController();
   TextEditingController name = TextEditingController();
+  bool isLoading = false; // loader state
+
   void _signup()async{
+    setState(() {
+      isLoading = true; // Show loader
+    });
+
     String username = name.text;
     String usermail = email.text;
     String userpass = pass.text;
     String institutename = instituteName.text;
-    User? user = await _auth.signUpWithEmailAndPassword(username,usermail, userpass, institutename);
-    if(user!= null){
-      Fluttertoast.showToast(msg: "Registered Successfully");
-      Navigator.push(      context, MaterialPageRoute(builder: (context)=>Adminhomepage(userType: "OWNER",)));
+
+    if (username.isEmpty || usermail.isEmpty || userpass.isEmpty || institutename.isEmpty) {
+      Fluttertoast.showToast(msg: "Please fill all fields");
+      setState(() {
+        isLoading = false; // validation fails hide loder
+      });
+      return;
     }
-    else{
-      print("some error occured");
-    }
-  } @override
+    try {
+      User? user = await _auth.signUpWithEmailAndPassword(username,usermail, userpass, institutename);
+      if(user!= null){
+        Fluttertoast.showToast(msg: "Registered Successfully");
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context)=>Adminhomepage(userType: "OWNER",))
+        );
+      }
+    } catch (e) {
+    Fluttertoast.showToast(msg: "Signup Failed : ${e.toString()}");
+  }
+    setState(() {
+      isLoading = false; // hide loader when completion
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
     double screenwidth = MediaQuery.of(context).size.width;
     return Scaffold(
-
-
-
       body: Container(
         padding: EdgeInsets.symmetric(horizontal: 20),
         decoration: BoxDecoration(
@@ -87,13 +106,14 @@ class _signUpScreenState extends State<signUpScreen> {
                   Components().InputBox(pass,"Password",Icon(Icons.lock),Colors.white,Colors.black),
                   SizedBox(height:40,),
                   SizedBox(
-                    width: screenwidth*0.6,
+                    width: screenwidth * 0.6,
                     child: ElevatedButton(
                         style: ElevatedButton.styleFrom(backgroundColor: AppColors.bgColor2),
-                        onPressed: (){
-                         _signup();
-                        },
-                        child: Text("SignUp",style: TextStyle(color: AppColors.white),)),
+                        onPressed: isLoading ? null :_signup, // Disable loading,
+                      child: isLoading
+                        ? CircularProgressIndicator(color: Colors.white) // Show loader
+                        : Text("Sign Up", style: TextStyle(color: AppColors.white)),
+                    ),
                   ),
 
                 ],
@@ -105,7 +125,7 @@ class _signUpScreenState extends State<signUpScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("Already have a Account?",style: TextStyle(color: AppColors.white,fontSize: 18),),
+                Text("Already have an Account?",style: TextStyle(color: AppColors.white,fontSize: 18),),
                 SizedBox(
                   width: 8,
                 ),
