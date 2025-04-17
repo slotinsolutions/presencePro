@@ -173,7 +173,7 @@ class _ViewAttendanceScreenState extends State<ViewAttendanceScreen> with Single
                    ),
                  ),
                ),
-                SizedBox(height: 30,),
+                SizedBox(height: 20,),
                 Container(
 
                   child: TabBar(
@@ -201,7 +201,69 @@ class _ViewAttendanceScreenState extends State<ViewAttendanceScreen> with Single
                          WeeklyAttendance(),
                           MonthlyAttendance()
                         ])
-                )
+                ),
+
+                Divider(color: Colors.grey, ),
+                SizedBox(height: 5,),
+
+                ElevatedButton.icon(
+                  style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blueGrey,
+                  ),
+
+                  onPressed: () async {
+                    try {
+                      if (studentData == null) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Student not found.')),
+                        );
+                        return;
+                      }
+
+                      String todayDate = DateTime.now().toIso8601String().split("T")[0];
+                      String studentName = studentData!['studentName'];
+                      String rollNumber = studentData!['rollNumber'];
+
+                      CollectionReference attendanceCollection = FirebaseFirestore.instance
+                          .collection('attendance')
+                          .doc(todayDate)
+                          .collection('presentStudents');
+
+                      QuerySnapshot presentStudentsSnapshot = await attendanceCollection.get();
+                      bool isAlreadyPresent = presentStudentsSnapshot.docs.any(
+                            (doc) => doc['rollNumber'] == rollNumber,
+                      );
+
+                      if (isAlreadyPresent) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Attendance already marked for today.')),
+                        );
+                        return;
+                      }
+
+                      await attendanceCollection.add({
+                        'name': studentName,
+                        'rollNumber': rollNumber,
+                      });
+
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Attendance marked successfully!')),
+                      );
+                    } catch (e) {
+                      print("Error marking attendance: $e");
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text('Failed to mark attendance.')),
+                      );
+                    }
+                  },
+
+
+                  icon: Icon(Icons.check_circle_outline,color: Colors.white, size: 23,),
+                  label: Text("I'm Present",
+                    style:TextStyle(color: Colors.white, fontSize:23),
+                  ),
+                ),
+
 
               ],
             ),
