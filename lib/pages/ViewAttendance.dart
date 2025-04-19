@@ -206,6 +206,8 @@ class _ViewAttendanceScreenState extends State<ViewAttendanceScreen> with Single
                 Divider(color: Colors.grey, ),
                 SizedBox(height: 5,),
 
+
+                if (widget.userType == "STUDENT")
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blueGrey,
@@ -213,42 +215,102 @@ class _ViewAttendanceScreenState extends State<ViewAttendanceScreen> with Single
 
                   onPressed: () async {
                     try {
-                      if (studentData == null) {
+                      final user = FirebaseAuth.instance.currentUser;
+                      final studentId = user?.uid;
+
+                      if (studentId == null) {
                         ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Student not found.')),
+                          SnackBar(content: Text('Student not logged in.')),
                         );
                         return;
                       }
 
-                      String todayDate = DateTime.now().toIso8601String().split("T")[0];
-                      String studentName = studentData!['studentName'];
-                      String rollNumber = studentData!['rollNumber'];
+                      // Loop by all owners
+                      final ownersSnapshot = await FirebaseFirestore.instance.collection('owners').get();
+                      bool studentFound = false;
 
-                      CollectionReference attendanceCollection = FirebaseFirestore.instance
-                          .collection('attendance')
-                          .doc(todayDate)
-                          .collection('presentStudents');
+                      for (var ownerDoc in ownersSnapshot.docs) {
+                        String ownerId = ownerDoc.id;
 
-                      QuerySnapshot presentStudentsSnapshot = await attendanceCollection.get();
-                      bool isAlreadyPresent = presentStudentsSnapshot.docs.any(
-                            (doc) => doc['rollNumber'] == rollNumber,
-                      );
+                        // Loop by all classes for owner
+                        final classesSnapshot = await FirebaseFirestore.instance
+                            .collection('owners')
+                            .doc(ownerId)
+                            .collection('classes')
+                            .get();
 
-                      if (isAlreadyPresent) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('Attendance already marked for today.')),
-                        );
-                        return;
+                        for (var classDoc in classesSnapshot.docs) {
+                          String classId = classDoc.id;
+
+                          // Check if student exists
+                          final studentDoc = await FirebaseFirestore.instance
+                              .collection('owners')
+                              .doc(ownerId)
+                              .collection('classes')
+                              .doc(classId)
+                              .collection('students')
+                              .doc(studentId)
+                              .get();
+
+                          if (studentDoc.exists) {
+                            final studentData = studentDoc.data()!;
+                            String studentName = studentData['studentName'];
+                            String rollNumber = studentData['rollNumber'];
+
+                            String todayDate = DateTime.now().toIso8601String().split("T")[0];
+
+                            // Check already marked
+                            final presentDateDoc = await FirebaseFirestore.instance
+                                .collection('owners')
+                                .doc(ownerId)
+                                .collection('classes')
+                                .doc(classId)
+                                .collection('students')
+                                .doc(studentId)
+                                .collection('presentDates')
+                                .doc(todayDate)
+                                .get();
+
+                            if (presentDateDoc.exists) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(content: Text('Attendance already marked for today.')),
+                              );
+                              return;
+                            }
+
+                            // Mark attendance
+                            await FirebaseFirestore.instance
+                                .collection('owners')
+                                .doc(ownerId)
+                                .collection('classes')
+                                .doc(classId)
+                                .collection('students')
+                                .doc(studentId)
+                                .collection('presentDates')
+                                .doc(todayDate)
+                                .set({
+                              'name': studentName,
+                              'rollNumber': rollNumber,
+                              'timestamp': FieldValue.serverTimestamp(),
+                            });
+
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text('Attendance marked successfully!')),
+                            );
+
+                            studentFound = true;
+                            break;
+                          }
+                        }
+
+                        if (studentFound) break;
                       }
 
-                      await attendanceCollection.add({
-                        'name': studentName,
-                        'rollNumber': rollNumber,
-                      });
-
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        SnackBar(content: Text('Attendance marked successfully!')),
-                      );
+                      if (!studentFound) {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(content: Text('Student not found in any class.')),
+                        );
+                      }
                     } catch (e) {
                       print("Error marking attendance: $e");
                       ScaffoldMessenger.of(context).showSnackBar(
