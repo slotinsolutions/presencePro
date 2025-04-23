@@ -197,7 +197,6 @@ class _ViewAttendanceScreenState extends State<ViewAttendanceScreen> with Single
                         controller: _tabController,
                         children: [
                           DailyAttendance(),
-
                          WeeklyAttendance(),
                           MonthlyAttendance()
                         ])
@@ -291,6 +290,7 @@ class _ViewAttendanceScreenState extends State<ViewAttendanceScreen> with Single
                                 .set({
                               'name': studentName,
                               'rollNumber': rollNumber,
+                              'studentId':studentId,
                               'timestamp': FieldValue.serverTimestamp(),
                             });
 
