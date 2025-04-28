@@ -78,9 +78,9 @@ class _WeeklyAttendanceState extends State<WeeklyAttendance> {
       case 'Present':
         return AppColors.bgColor;
       case 'Absent':
-        return Colors.yellowAccent.shade100;
+        return Colors.red.shade100;
       case 'Holiday':
-        return Colors.red.shade400;
+        return Colors.blueGrey[300]!;
       case 'Future':
         return Colors.transparent;
       default:
