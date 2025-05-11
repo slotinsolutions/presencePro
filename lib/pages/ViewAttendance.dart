@@ -26,6 +26,7 @@ class _ViewAttendanceScreenState extends State<ViewAttendanceScreen> with Single
   GlobalKey<ScaffoldState> _drawerkey = GlobalKey();
   final FirebaseAuth _auth = FirebaseAuth.instance;
   String? instituteName;
+  bool isAttendanceMarked = false; // flag for attendance check (I'm Present)
 
 
   @override
@@ -206,7 +207,7 @@ class _ViewAttendanceScreenState extends State<ViewAttendanceScreen> with Single
                 SizedBox(height: 5,),
 
 
-                if (widget.userType == "STUDENT")
+                if (widget.userType == "STUDENT" && !isAttendanceMarked)
                 ElevatedButton.icon(
                   style: ElevatedButton.styleFrom(
                       backgroundColor: Colors.blueGrey,
@@ -271,6 +272,9 @@ class _ViewAttendanceScreenState extends State<ViewAttendanceScreen> with Single
                                 .get();
 
                             if (presentDateDoc.exists) {
+                              setState(() {
+                                isAttendanceMarked = true; // if attendance found update flag
+                              });
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(content: Text('Attendance already marked for today.')),
                               );
@@ -297,6 +301,9 @@ class _ViewAttendanceScreenState extends State<ViewAttendanceScreen> with Single
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(content: Text('Attendance marked successfully!')),
                             );
+                            setState(() {
+                              isAttendanceMarked = true; // update flag to hide I'm Present button
+                            });
 
                             studentFound = true;
                             break;
