@@ -20,6 +20,7 @@ class AddstudentScreen extends StatefulWidget {
 class _AddstudentScreenState extends State<AddstudentScreen> {
    String? selectedCLass;
    final FirebaseAuth _auth = FirebaseAuth.instance;
+   bool isLoading = false; // added loading
 
    TextEditingController name = TextEditingController();
   TextEditingController email = TextEditingController();
@@ -68,8 +69,23 @@ String? ownerIdIfadmin;
    }
    }
 
+// show loading
+  void showLoadingDialog() {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext context) {
+        return Center(
+          child: CircularProgressIndicator(),
+        );
+      },
+    );
+  }
 
-
+  // hide loader
+  void hideLoadingDialog() {
+    Navigator.of(context).pop();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -167,45 +183,59 @@ String? ownerIdIfadmin;
                       style: ElevatedButton.styleFrom(
                         backgroundColor: AppColors.primary
                       ),
-                        onPressed: ()async{
-                        widget.userType=="OWNER"?
-
-                        await Firebase_Firestore().registerStudentAsOwner(
-                            context: context,
-                            ownerPassword: adminPassword.text,
-                            ownerId: _auth.currentUser!.uid,
-                            className: selectedCLass!,
-                            studentName: name.text,
-                            studentEmail: email.text,
-                            studentPassword: password.text,
-                            rollNumber: rollno.text,
-                            rfidTagId: rfidID.text,
-                            beaconId: beaconID.text):
-                        await Firebase_Firestore().registerStudentAsOwner(
-                            context: context,
-                            ownerPassword: adminPassword.text,
-                            ownerId: ownerIdIfadmin!,
-                            className: selectedCLass!,
-                            studentName: name.text,
-                            studentEmail: email.text,
-                            studentPassword: password.text,
-                            rollNumber: rollno.text,
-                            rfidTagId: rfidID.text,
-                            beaconId: beaconID.text) ;
+                        onPressed: isLoading ? null : () async {
                         setState(() {
-                          name.clear();
-                          email.clear();
-                          password.clear();
-                          rollno.clear();
-                          rfidID.clear();
-                          beaconID.clear();
-                          adminPassword.clear();
-
-
+                          isLoading = true;
                         });
 
+                        try {
+                          widget.userType=="OWNER"
+                          ?await Firebase_Firestore().registerStudentAsOwner(
+                              context: context,
+                              ownerPassword: adminPassword.text,
+                              ownerId: _auth.currentUser!.uid,
+                              className: selectedCLass!,
+                              studentName: name.text,
+                              studentEmail: email.text,
+                              studentPassword: password.text,
+                              rollNumber: rollno.text,
+                              rfidTagId: rfidID.text,
+                              beaconId: beaconID.text):
+                          await Firebase_Firestore().registerStudentAsOwner(
+                              context: context,ownerPassword: adminPassword.text,
+                              ownerId: ownerIdIfadmin!,
+                              className: selectedCLass!,
+                              studentName: name.text,
+                              studentEmail: email.text,
+                              studentPassword: password.text,
+                              rollNumber: rollno.text,
+                              rfidTagId: rfidID.text,
+                              beaconId: beaconID.text);
+                          setState(() {
+                            name.clear();
+                            email.clear();
+                            password.clear();
+                            rollno.clear();
+                            rfidID.clear();
+                            beaconID.clear();
+                            adminPassword.clear();
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Student registered successfully!'),duration: Duration(milliseconds: 250),),
+                          );
+                        } catch (e) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text('Registration failed. Please try again later.'), duration: Duration(milliseconds: 500),),
+                          );
+                        } finally {
+                          setState(() {
+                            isLoading = false;
+                          });
+                        }
                         },
-                        child: Text("Register Student",style: TextStyle(fontSize: 14,color: Colors.white),)),
+                        child: isLoading
+                            ? CircularProgressIndicator( color: Colors.white,)
+                            : Text("Register Student",style: TextStyle(fontSize: 14,color: Colors.white),)),
                   ),
                 )
               ],
